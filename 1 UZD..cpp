@@ -3,6 +3,7 @@
 #include <string>
 #include <vector>
 #include <algorithm>
+#include <random>
 
 using std::cin;
 using std::cout;
@@ -24,35 +25,70 @@ struct studentas {
 int main() {
     std::vector<studentas> studentai;
     char kl;
+    int pasirinkimas;
+
+    // Programos veiksmų pasirinkimo meniu
+    cout << "Pasirinkite, kaip bus ivesti pazymiai:\n";
+    cout << "1 - Ivesti pazymius ranka\n";
+    cout << "2 - Generuoti pazymius atsitiktinai\n";
+    cout << "Jusu pasirinkimas: ";
+    cin >> pasirinkimas;
+
+    // Atsitiktiniu skaiciu generatorius
+    std::random_device rd;
+    std::mt19937 gen(rd());
+    std::uniform_int_distribution<int> dist(1, 10);
 
     while (true) {
         studentas A;
 
-        cout << "Iveskite varda: ";
+        cout << "\nIveskite varda: ";
         cin >> A.var;
 
         cout << "Iveskite pavarde: ";
         cin >> A.pav;
 
-        while (true) {
-    int pazymys;
-    char kl;
+        if (pasirinkimas == 1) {
+            // Pazymiu ivedimas ranka
+            while (true) {
+                int pazymys;
 
-    cout << "Iveskite namu darbo pazymi: ";
-    cin >> pazymys;
-    A.paz.push_back(pazymys);
+                cout << "Iveskite namu darbo pazymi: ";
+                cin >> pazymys;
+                A.paz.push_back(pazymys);
 
-    cout << "Ar studentas turi dar pazymiu? t/n ";
-    cin >> kl;
+                cout << "Ar studentas turi dar pazymiu? t/n ";
+                cin >> kl;
 
-    if (kl == 'n' || kl == 'N')
-        break;
-}
+                if (kl == 'n' || kl == 'N')
+                    break;
+            }
 
-        cout << "Iveskite egzamino pazymi: ";
-        cin >> A.egz;
+            cout << "Iveskite egzamino pazymi: ";
+            cin >> A.egz;
+        }
+        else if (pasirinkimas == 2) {
+            // Pazymiu generavimas atsitiktinai
+            int kiek_nd;
 
-        // Galutinis balas pagal vidurkį
+            cout << "Kiek namu darbu pazymiu generuoti? ";
+            cin >> kiek_nd;
+
+            for (int i = 0; i < kiek_nd; i++) {
+                A.paz.push_back(dist(gen));
+            }
+
+            A.egz = dist(gen);
+
+            cout << "Sugeneruoti ND pazymiai: ";
+            for (int pazymys : A.paz)
+                cout << pazymys << " ";
+
+            cout << "\nSugeneruotas egzamino pazymys: "
+                 << A.egz << "\n";
+        }
+
+        // Galutinis balas pagal vidurki
         double suma = 0;
 
         for (int sk : A.paz)
@@ -63,7 +99,7 @@ int main() {
         A.rez = 0.4 * nd_vidurkis + 0.6 * A.egz;
 
 
-        // Galutinis balas pagal medianą
+        // Galutinis balas pagal mediana
         std::vector<int> surikiuoti = A.paz;
         std::sort(surikiuoti.begin(), surikiuoti.end());
 
