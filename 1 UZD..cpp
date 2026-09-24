@@ -34,16 +34,20 @@ int main() {
         cout << "Iveskite pavarde: ";
         cin >> A.pav;
 
-        int n;
-        cout << "Iveskite namu darbu skaiciu: ";
-        cin >> n;
+        while (true) {
+    int pazymys;
+    char kl;
 
-        for (int i = 0; i < n; i++) {
-            int pazymys;
-            cout << "Iveskite namu darbo pazymi: ";
-            cin >> pazymys;
-            A.paz.push_back(pazymys);
-        }
+    cout << "Iveskite namu darbo pazymi: ";
+    cin >> pazymys;
+    A.paz.push_back(pazymys);
+
+    cout << "Ar studentas turi dar pazymiu? t/n ";
+    cin >> kl;
+
+    if (kl == 'n' || kl == 'N')
+        break;
+}
 
         cout << "Iveskite egzamino pazymi: ";
         cin >> A.egz;
