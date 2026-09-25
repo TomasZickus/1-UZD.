@@ -5,6 +5,7 @@
 #include <algorithm>
 #include <random>
 #include <fstream>
+#include <sstream>
 
 using std::cin;
 using std::cout;
@@ -21,7 +22,6 @@ struct studentas {
     double rez_med;
 };
 
-// Funkcija galutinių balų skaičiavimui
 void paskaiciuoti_rezultatus(studentas &A) {
     double suma = 0;
     for (int sk : A.paz) {
@@ -53,32 +53,51 @@ int main() {
     cout << "Pasirinkite, kaip bus ivesti pazymiai:\n";
     cout << "1 - Ivesti pazymius ranka\n";
     cout << "2 - Generuoti pazymius atsitiktinai\n";
-    cout << "3 - Nuskaityti is failo kursiokai.txt\n";
+    cout << "3 - Nuskaityti is failo\n";
     cout << "Jusu pasirinkimas: ";
     cin >> pasirinkimas;
 
     if (pasirinkimas == 3) {
-        std::ifstream fd("kursiokai.txt");
+        std::string failo_pavadinimas;
+        cout << "Iveskite failo pavadinima (pvz., kursiokai.txt): ";
+        cin >> failo_pavadinimas;
+
+        std::ifstream fd(failo_pavadinimas);
         if (!fd) {
-            cout << "Nepavyko atidaryti kursiokai.txt failo!\n";
+            cout << "Nepavyko atidaryti failo!\n";
             return 1;
         }
         
-        std::string antraste;
-        std::getline(fd, antraste); // Praleidžiama pirma eilutė su stulpelių pavadinimais
+        std::string eilute;
+        std::getline(fd, eilute); // Praleidžiama pirma eilutė su stulpelių pavadinimais
 
-        studentas A;
-        while (fd >> A.var >> A.pav) {
-            A.paz.clear();
-            for (int i = 0; i < 5; i++) {
-                int pazymys;
-                fd >> pazymys;
-                A.paz.push_back(pazymys);
-            }
-            fd >> A.egz;
+        while (std::getline(fd, eilute)) {
+            if (eilute.empty()) continue;
+
+            std::istringstream iss(eilute);
+            studentas A;
             
-            paskaiciuoti_rezultatus(A);
-            studentai.push_back(A);
+            // Nuskaitomas vardas ir pavardė
+            if (iss >> A.var >> A.pav) {
+                int pazymys;
+                A.paz.clear();
+                
+                // Nuskaitomi visi likę skaičiai eilutėje
+                while (iss >> pazymys) {
+                    A.paz.push_back(pazymys);
+                }
+                
+                // Paskutinis nuskaitytas skaičius yra egzamino pažymys
+                if (!A.paz.empty()) {
+                    A.egz = A.paz.back();
+                    A.paz.pop_back(); // Pašalinamas egzamino pažymys iš ND sąrašo
+                } else {
+                    A.egz = 0;
+                }
+                
+                paskaiciuoti_rezultatus(A);
+                studentai.push_back(A);
+            }
         }
         fd.close();
         cout << "Duomenys sekmingai nuskaityti is failo.\n";
@@ -146,7 +165,7 @@ int main() {
          << "|\n";
     cout << std::string(plotis, '-') << "\n";
 
-    for (studentas A : studentai) {
+    for (const studentas& A : studentai) {
         cout << "|" << left << setw(15) << A.pav
              << "|" << left << setw(15) << A.var
              << "|" << left << setw(17) << fixed << setprecision(2) << A.rez
