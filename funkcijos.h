@@ -9,7 +9,8 @@ void generuoti_faila(std::string failo_pavadinimas, int kiek_studentu, std::mt19
 void generuoti_visus_failus(std::mt19937 &gen);
 void apdoroti_faila(const std::string& failo_pavadinimas,
                     const std::string& vargsiuku_failas,
-                    const std::string& kietiaku_failas);
+                    const std::string& kietiaku_failas,
+                    int rusiavimo_parametras);
 void apdoroti_visus_failus();
 
 #endif
