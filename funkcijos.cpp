@@ -41,7 +41,6 @@ void generuoti_faila(std::string failo_pavadinimas, int kiek_studentu, std::mt19
     fr.close();
 
     auto pabaiga = std::chrono::high_resolution_clock::now();
-
     std::chrono::duration<double> trukme = pabaiga - pradzia;
 
     cout << "Sugeneruotas failas: " << failo_pavadinimas
@@ -60,6 +59,9 @@ void apdoroti_faila(const std::string& failo_pavadinimas,
                     const std::string& vargsiuku_failas,
                     const std::string& kietiaku_failas) {
 
+    // 1. Duomenu nuskaitymas
+    auto pradzia = std::chrono::high_resolution_clock::now();
+
     std::ifstream fd(failo_pavadinimas);
 
     if (!fd) {
@@ -67,7 +69,7 @@ void apdoroti_faila(const std::string& failo_pavadinimas,
         return;
     }
 
-    std::vector<studentas> vargsiukai, kietiakai;
+    std::vector<studentas> studentai;
     std::string eilute;
 
     std::getline(fd, eilute);
@@ -83,19 +85,40 @@ void apdoroti_faila(const std::string& failo_pavadinimas,
             while (iss >> pazymys)
                 A.paz.push_back(pazymys);
 
-            A.egz = A.paz.back();
-            A.paz.pop_back();
+            if (A.paz.empty())
+                A.egz = 0;
+            else {
+                A.egz = A.paz.back();
+                A.paz.pop_back();
+            }
 
             paskaiciuoti_rezultatus(A);
-
-            if (A.rez < 5.0)
-                vargsiukai.push_back(A);
-            else
-                kietiakai.push_back(A);
+            studentai.push_back(A);
         }
     }
 
     fd.close();
+
+    auto pabaiga = std::chrono::high_resolution_clock::now();
+    std::chrono::duration<double> nuskaitymo_laikas = pabaiga - pradzia;
+
+    // 2. Studentu suskirstymas i dvi kategorijas
+    pradzia = std::chrono::high_resolution_clock::now();
+
+    std::vector<studentas> vargsiukai, kietiakai;
+
+    for (const studentas& A : studentai) {
+        if (A.rez < 5.0)
+            vargsiukai.push_back(A);
+        else
+            kietiakai.push_back(A);
+    }
+
+    pabaiga = std::chrono::high_resolution_clock::now();
+    std::chrono::duration<double> grupavimo_laikas = pabaiga - pradzia;
+
+    // 3. Rezultatu isvedimas i du failus
+    pradzia = std::chrono::high_resolution_clock::now();
 
     std::ofstream fr_vargsiukai(vargsiuku_failas);
     std::ofstream fr_kietiakai(kietiaku_failas);
@@ -105,12 +128,11 @@ void apdoroti_faila(const std::string& failo_pavadinimas,
         return;
     }
 
-    for (std::ofstream* fr : {&fr_vargsiukai, &fr_kietiakai}) {
+    for (std::ofstream* fr : {&fr_vargsiukai, &fr_kietiakai})
         *fr << left << setw(15) << "Vardas"
             << setw(15) << "Pavarde"
             << setw(17) << "Galutinis (Vid.)"
             << setw(17) << "Galutinis (Med.)" << "\n";
-    }
 
     for (const studentas& A : vargsiukai)
         fr_vargsiukai << left << setw(15) << A.var
@@ -123,6 +145,17 @@ void apdoroti_faila(const std::string& failo_pavadinimas,
                      << setw(15) << A.pav
                      << setw(17) << fixed << setprecision(2) << A.rez
                      << setw(17) << A.rez_med << "\n";
+
+    fr_vargsiukai.close();
+    fr_kietiakai.close();
+
+    pabaiga = std::chrono::high_resolution_clock::now();
+    std::chrono::duration<double> isvedimo_laikas = pabaiga - pradzia;
+
+    cout << "\nFailas: " << failo_pavadinimas << "\n";
+    cout << "Sio failo nuskaitymo laikas: " << nuskaitymo_laikas.count() << " s\n";
+    cout << "Studentu grupavimo i dvi grupes pagal pazymius laikas: " << grupavimo_laikas.count() << " s\n";
+    cout << "Isvedimo i naujus failus laikas: " << isvedimo_laikas.count() << " s\n";
 }
 
 void apdoroti_visus_failus() {
