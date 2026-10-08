@@ -4,6 +4,8 @@
 #include <fstream>
 #include <sstream>
 #include <chrono>
+#include <algorithm>
+#include <limits>
 
 using std::cout;
 using std::left;
@@ -57,7 +59,8 @@ void generuoti_visus_failus(std::mt19937 &gen) {
 
 void apdoroti_faila(const std::string& failo_pavadinimas,
                     const std::string& vargsiuku_failas,
-                    const std::string& kietiaku_failas) {
+                    const std::string& kietiaku_failas,
+                    int rusiavimo_parametras) {
 
     // 1. Duomenu nuskaitymas
     auto pradzia = std::chrono::high_resolution_clock::now();
@@ -117,7 +120,33 @@ void apdoroti_faila(const std::string& failo_pavadinimas,
     pabaiga = std::chrono::high_resolution_clock::now();
     std::chrono::duration<double> grupavimo_laikas = pabaiga - pradzia;
 
-    // 3. Rezultatu isvedimas i du failus
+    // 3. Studentu rusiavimas pagal parametrus
+auto pagal_varda = [](const studentas& a, const studentas& b) {
+    return a.var < b.var;
+};
+
+auto pagal_pavarde = [](const studentas& a, const studentas& b) {
+    return a.pav < b.pav;
+};
+
+auto pagal_rezultata = [](const studentas& a, const studentas& b) {
+    return a.rez > b.rez;
+};
+
+if (rusiavimo_parametras == 1) {
+    std::sort(vargsiukai.begin(), vargsiukai.end(), pagal_varda);
+    std::sort(kietiakai.begin(), kietiakai.end(), pagal_varda);
+}
+else if (rusiavimo_parametras == 2) {
+    std::sort(vargsiukai.begin(), vargsiukai.end(), pagal_pavarde);
+    std::sort(kietiakai.begin(), kietiakai.end(), pagal_pavarde);
+}
+else if (rusiavimo_parametras == 3) {
+    std::sort(vargsiukai.begin(), vargsiukai.end(), pagal_rezultata);
+    std::sort(kietiakai.begin(), kietiakai.end(), pagal_rezultata);
+}
+
+    // 4. Rezultatu isvedimas i du failus
     pradzia = std::chrono::high_resolution_clock::now();
 
     std::ofstream fr_vargsiukai(vargsiuku_failas);
@@ -159,9 +188,35 @@ void apdoroti_faila(const std::string& failo_pavadinimas,
 }
 
 void apdoroti_visus_failus() {
-    apdoroti_faila("studentai_1k.txt", "vargsiukai_1k.txt", "kietiakai_1k.txt");
-    apdoroti_faila("studentai_10k.txt", "vargsiukai_10k.txt", "kietiakai_10k.txt");
-    apdoroti_faila("studentai_100k.txt", "vargsiukai_100k.txt", "kietiakai_100k.txt");
-    apdoroti_faila("studentai_1m.txt", "vargsiukai_1m.txt", "kietiakai_1m.txt");
-    apdoroti_faila("studentai_10m.txt", "vargsiukai_10m.txt", "kietiakai_10m.txt");
+    int pasirinkimas;
+
+    cout << "\nPasirinkite studentu rusiavimo buda:\n";
+    cout << "1 - Pagal varda (A-Z)\n";
+    cout << "2 - Pagal pavarde (A-Z)\n";
+    cout << "3 - Pagal galutini bala (nuo didziausio iki maziausio)\n";
+    cout << "Jusu pasirinkimas: ";
+
+    while (!(std::cin >> pasirinkimas) ||
+           pasirinkimas < 1 || pasirinkimas > 3) {
+        cout << "Neteisingas pasirinkimas. Iveskite 1, 2 arba 3: ";
+        std::cin.clear();
+        std::cin.ignore(
+            std::numeric_limits<std::streamsize>::max(), '\n'
+        );
+    }
+
+    apdoroti_faila("studentai_1k.txt", "vargsiukai_1k.txt",
+                   "kietiakai_1k.txt", pasirinkimas);
+
+    apdoroti_faila("studentai_10k.txt", "vargsiukai_10k.txt",
+                   "kietiakai_10k.txt", pasirinkimas);
+
+    apdoroti_faila("studentai_100k.txt", "vargsiukai_100k.txt",
+                   "kietiakai_100k.txt", pasirinkimas);
+
+    apdoroti_faila("studentai_1m.txt", "vargsiukai_1m.txt",
+                   "kietiakai_1m.txt", pasirinkimas);
+
+    apdoroti_faila("studentai_10m.txt", "vargsiukai_10m.txt",
+                   "kietiakai_10m.txt", pasirinkimas);
 }
