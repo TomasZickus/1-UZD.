@@ -3,6 +3,7 @@
 #include <iomanip>
 #include <fstream>
 #include <sstream>
+#include <chrono>
 
 using std::cout;
 using std::left;
@@ -11,6 +12,8 @@ using std::fixed;
 using std::setprecision;
 
 void generuoti_faila(std::string failo_pavadinimas, int kiek_studentu, std::mt19937 &gen) {
+    auto pradzia = std::chrono::high_resolution_clock::now();
+
     std::ofstream fr(failo_pavadinimas);
 
     if (!fr) {
@@ -36,7 +39,13 @@ void generuoti_faila(std::string failo_pavadinimas, int kiek_studentu, std::mt19
            << setw(6) << dist(gen) << "\n";
 
     fr.close();
-    cout << "Sugeneruotas failas: " << failo_pavadinimas << "\n";
+
+    auto pabaiga = std::chrono::high_resolution_clock::now();
+
+    std::chrono::duration<double> trukme = pabaiga - pradzia;
+
+    cout << "Sugeneruotas failas: " << failo_pavadinimas
+         << " | Kurimo laikas: " << trukme.count() << " s\n";
 }
 
 void generuoti_visus_failus(std::mt19937 &gen) {
