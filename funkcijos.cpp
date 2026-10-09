@@ -121,6 +121,8 @@ void apdoroti_faila(const std::string& failo_pavadinimas,
     std::chrono::duration<double> grupavimo_laikas = pabaiga - pradzia;
 
     // 3. Studentu rusiavimas pagal parametrus
+    pradzia = std::chrono::high_resolution_clock::now();
+
 auto pagal_varda = [](const studentas& a, const studentas& b) {
     return a.var < b.var;
 };
@@ -145,6 +147,9 @@ else if (rusiavimo_parametras == 3) {
     std::sort(vargsiukai.begin(), vargsiukai.end(), pagal_rezultata);
     std::sort(kietiakai.begin(), kietiakai.end(), pagal_rezultata);
 }
+
+    pabaiga = std::chrono::high_resolution_clock::now();
+    std::chrono::duration<double> rusiavimo_laikas = pabaiga - pradzia;
 
     // 4. Rezultatu isvedimas i du failus
     pradzia = std::chrono::high_resolution_clock::now();
@@ -185,6 +190,29 @@ else if (rusiavimo_parametras == 3) {
     cout << "Sio failo nuskaitymo laikas: " << nuskaitymo_laikas.count() << " s\n";
     cout << "Studentu grupavimo i dvi grupes pagal pazymius laikas: " << grupavimo_laikas.count() << " s\n";
     cout << "Isvedimo i naujus failus laikas: " << isvedimo_laikas.count() << " s\n";
+    cout << "Studentu rusiavimo pagal pasirinkta parametra laikas: "
+     << rusiavimo_laikas.count() << " s\n";
+
+double bendras_laikas = nuskaitymo_laikas.count()
+                      + grupavimo_laikas.count()
+                      + rusiavimo_laikas.count()
+                      + isvedimo_laikas.count();
+
+std::string irasu_kiekis;
+
+if (failo_pavadinimas == "studentai_1k.txt")
+    irasu_kiekis = "1 tukst.";
+else if (failo_pavadinimas == "studentai_10k.txt")
+    irasu_kiekis = "10 tukst.";
+else if (failo_pavadinimas == "studentai_100k.txt")
+    irasu_kiekis = "100 tukst.";
+else if (failo_pavadinimas == "studentai_1m.txt")
+    irasu_kiekis = "1 mln.";
+else if (failo_pavadinimas == "studentai_10m.txt")
+    irasu_kiekis = "10 mln.";
+
+cout << irasu_kiekis << " irasu testo laikas: "
+     << bendras_laikas << " s\n";
 }
 
 void apdoroti_visus_failus() {
