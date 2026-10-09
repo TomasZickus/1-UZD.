@@ -21,28 +21,41 @@ int main() {
     char kl;
     int pasirinkimas;
 
-    cout << "Pasirinkite, kaip bus ivesti pazymiai:\n";
+    cout << "Pasirinkite veiksma:\n";
     cout << "1 - Ivesti pazymius ranka\n";
     cout << "2 - Generuoti pazymius atsitiktinai\n";
     cout << "3 - Nuskaityti is failo\n";
-    cout << "4 - Sugeneruoti 5 studentu failus\n";
+    cout << "4 - Sugeneruoti 5 failus ir juos apdoroti\n";
+    cout << "5 - Pakartoti spartos testus su esamais failais\n";
     cout << "Jusu pasirinkimas: ";
-    cin >> pasirinkimas;
+
+    if (!(cin >> pasirinkimas) || pasirinkimas < 1 || pasirinkimas > 5) {
+        cout << "Neteisingas pasirinkimas.\n";
+        return 1;
+    }
 
     std::random_device rd;
     std::mt19937 gen(rd());
 
     if (pasirinkimas == 4) {
         generuoti_visus_failus(gen);
-        cout << "\nVisi 5 failai sugeneruoti.\n";
-        cout << "Pradedamas ju apdorojimas...\n";
-        apdoroti_visus_failus();
+
+        cout << "\nPradedamas failu apdorojimas...\n";
+        apdoroti_visus_failus(1);
+        return 0;
+    }
+
+    if (pasirinkimas == 5) {
+        cout << "\nBus atliekami 3 testavimo bandymai.\n";
+        cout << "Naudojami jau egzistuojantys failai.\n";
+        apdoroti_visus_failus(3);
         return 0;
     }
 
     if (pasirinkimas == 3) {
         std::string failo_pavadinimas;
-        cout << "Iveskite failo pavadinima (pvz., kursiokai.txt): ";
+
+        cout << "Iveskite failo pavadinima: ";
         cin >> failo_pavadinimas;
 
         std::ifstream fd(failo_pavadinimas);
@@ -66,8 +79,12 @@ int main() {
                 while (iss >> pazymys)
                     A.paz.push_back(pazymys);
 
-                A.egz = A.paz.back();
-                A.paz.pop_back();
+                if (A.paz.empty())
+                    A.egz = 0;
+                else {
+                    A.egz = A.paz.back();
+                    A.paz.pop_back();
+                }
 
                 paskaiciuoti_rezultatus(A);
                 studentai.push_back(A);
@@ -75,7 +92,7 @@ int main() {
         }
 
         fd.close();
-        cout << "Duomenys sekmingai nuskaityti is failo.\n";
+        cout << "Duomenys sekmingai nuskaityti.\n";
     }
     else {
         std::uniform_int_distribution<int> dist(1, 10);
