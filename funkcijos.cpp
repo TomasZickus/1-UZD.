@@ -1,4 +1,5 @@
 #include "funkcijos.h"
+
 #include <iostream>
 #include <iomanip>
 #include <fstream>
@@ -6,6 +7,7 @@
 #include <chrono>
 #include <algorithm>
 #include <limits>
+#include <vector>
 
 using std::cout;
 using std::left;
@@ -13,13 +15,18 @@ using std::setw;
 using std::fixed;
 using std::setprecision;
 
-void generuoti_faila(std::string failo_pavadinimas, int kiek_studentu, std::mt19937 &gen) {
-    auto pradzia = std::chrono::high_resolution_clock::now();
+void generuoti_faila(
+    std::string failo_pavadinimas,
+    int kiek_studentu,
+    std::mt19937 &gen
+) {
+    auto pradzia = std::chrono::steady_clock::now();
 
     std::ofstream fr(failo_pavadinimas);
 
     if (!fr) {
-        cout << "Nepavyko sukurti failo " << failo_pavadinimas << "!\n";
+        cout << "Nepavyko sukurti failo "
+             << failo_pavadinimas << "!\n";
         return;
     }
 
@@ -32,17 +39,19 @@ void generuoti_faila(std::string failo_pavadinimas, int kiek_studentu, std::mt19
        << setw(6) << "ND3"
        << setw(6) << "Egz" << "\n";
 
-    for (int i = 1; i <= kiek_studentu; i++)
+    for (int i = 1; i <= kiek_studentu; i++) {
         fr << left << setw(15) << ("Vardas" + std::to_string(i))
            << setw(15) << ("Pavarde" + std::to_string(i))
            << setw(6) << dist(gen)
            << setw(6) << dist(gen)
            << setw(6) << dist(gen)
            << setw(6) << dist(gen) << "\n";
+    }
 
     fr.close();
 
-    auto pabaiga = std::chrono::high_resolution_clock::now();
+    auto pabaiga = std::chrono::steady_clock::now();
+
     std::chrono::duration<double> trukme = pabaiga - pradzia;
 
     cout << "Sugeneruotas failas: " << failo_pavadinimas
@@ -57,25 +66,31 @@ void generuoti_visus_failus(std::mt19937 &gen) {
     generuoti_faila("studentai_10m.txt", 10000000, gen);
 }
 
-void apdoroti_faila(const std::string& failo_pavadinimas,
-                    const std::string& vargsiuku_failas,
-                    const std::string& kietiaku_failas,
-                    int rusiavimo_parametras) {
+MatavimoLaikai apdoroti_faila(
+    const std::string& failo_pavadinimas,
+    const std::string& vargsiuku_failas,
+    const std::string& kietiaku_failas,
+    int rusiavimo_parametras
+) {
+    using laikrodis = std::chrono::steady_clock;
 
-    // 1. Duomenu nuskaitymas
-    auto pradzia = std::chrono::high_resolution_clock::now();
+    MatavimoLaikai laikai;
+
+    // 1. Duomenu nuskaitymas ir rezultatu skaiciavimas
+    auto pradzia = laikrodis::now();
 
     std::ifstream fd(failo_pavadinimas);
 
     if (!fd) {
-        cout << "Nepavyko atidaryti failo " << failo_pavadinimas << "!\n";
-        return;
+        cout << "Nepavyko atidaryti failo "
+             << failo_pavadinimas << "!\n";
+        return laikai;
     }
 
     std::vector<studentas> studentai;
     std::string eilute;
 
-    std::getline(fd, eilute);
+    std::getline(fd, eilute); // Praleidziama antraste
 
     while (std::getline(fd, eilute)) {
         if (eilute.empty()) continue;
@@ -88,8 +103,9 @@ void apdoroti_faila(const std::string& failo_pavadinimas,
             while (iss >> pazymys)
                 A.paz.push_back(pazymys);
 
-            if (A.paz.empty())
+            if (A.paz.empty()) {
                 A.egz = 0;
+            }
             else {
                 A.egz = A.paz.back();
                 A.paz.pop_back();
@@ -102,11 +118,13 @@ void apdoroti_faila(const std::string& failo_pavadinimas,
 
     fd.close();
 
-    auto pabaiga = std::chrono::high_resolution_clock::now();
-    std::chrono::duration<double> nuskaitymo_laikas = pabaiga - pradzia;
+    auto pabaiga = laikrodis::now();
 
-    // 2. Studentu suskirstymas i dvi kategorijas
-    pradzia = std::chrono::high_resolution_clock::now();
+    laikai.nuskaitymas =
+        std::chrono::duration<double>(pabaiga - pradzia).count();
+
+    // 2. Studentu grupavimas
+    pradzia = laikrodis::now();
 
     std::vector<studentas> vargsiukai, kietiakai;
 
@@ -117,105 +135,88 @@ void apdoroti_faila(const std::string& failo_pavadinimas,
             kietiakai.push_back(A);
     }
 
-    pabaiga = std::chrono::high_resolution_clock::now();
-    std::chrono::duration<double> grupavimo_laikas = pabaiga - pradzia;
+    pabaiga = laikrodis::now();
 
-    // 3. Studentu rusiavimas pagal parametrus
-    pradzia = std::chrono::high_resolution_clock::now();
+    laikai.grupavimas =
+        std::chrono::duration<double>(pabaiga - pradzia).count();
 
-auto pagal_varda = [](const studentas& a, const studentas& b) {
-    return a.var < b.var;
-};
+    // 3. Studentu rusiavimas
+    pradzia = laikrodis::now();
 
-auto pagal_pavarde = [](const studentas& a, const studentas& b) {
-    return a.pav < b.pav;
-};
+    auto pagal_varda = [](const studentas& a, const studentas& b) {
+        return a.var < b.var;
+    };
 
-auto pagal_rezultata = [](const studentas& a, const studentas& b) {
-    return a.rez > b.rez;
-};
+    auto pagal_pavarde = [](const studentas& a, const studentas& b) {
+        return a.pav < b.pav;
+    };
 
-if (rusiavimo_parametras == 1) {
-    std::sort(vargsiukai.begin(), vargsiukai.end(), pagal_varda);
-    std::sort(kietiakai.begin(), kietiakai.end(), pagal_varda);
-}
-else if (rusiavimo_parametras == 2) {
-    std::sort(vargsiukai.begin(), vargsiukai.end(), pagal_pavarde);
-    std::sort(kietiakai.begin(), kietiakai.end(), pagal_pavarde);
-}
-else if (rusiavimo_parametras == 3) {
-    std::sort(vargsiukai.begin(), vargsiukai.end(), pagal_rezultata);
-    std::sort(kietiakai.begin(), kietiakai.end(), pagal_rezultata);
-}
+    auto pagal_rezultata = [](const studentas& a, const studentas& b) {
+        return a.rez > b.rez;
+    };
 
-    pabaiga = std::chrono::high_resolution_clock::now();
-    std::chrono::duration<double> rusiavimo_laikas = pabaiga - pradzia;
+    if (rusiavimo_parametras == 1) {
+        std::sort(vargsiukai.begin(), vargsiukai.end(), pagal_varda);
+        std::sort(kietiakai.begin(), kietiakai.end(), pagal_varda);
+    }
+    else if (rusiavimo_parametras == 2) {
+        std::sort(vargsiukai.begin(), vargsiukai.end(), pagal_pavarde);
+        std::sort(kietiakai.begin(), kietiakai.end(), pagal_pavarde);
+    }
+    else if (rusiavimo_parametras == 3) {
+        std::sort(vargsiukai.begin(), vargsiukai.end(), pagal_rezultata);
+        std::sort(kietiakai.begin(), kietiakai.end(), pagal_rezultata);
+    }
 
-    // 4. Rezultatu isvedimas i du failus
-    pradzia = std::chrono::high_resolution_clock::now();
+    pabaiga = laikrodis::now();
+
+    laikai.rusiavimas =
+        std::chrono::duration<double>(pabaiga - pradzia).count();
+
+    // 4. Rezultatu isvedimas i failus
+    pradzia = laikrodis::now();
 
     std::ofstream fr_vargsiukai(vargsiuku_failas);
     std::ofstream fr_kietiakai(kietiaku_failas);
 
     if (!fr_vargsiukai || !fr_kietiakai) {
         cout << "Nepavyko sukurti rezultatu failu!\n";
-        return;
+        return laikai;
     }
 
-    for (std::ofstream* fr : {&fr_vargsiukai, &fr_kietiakai})
+    for (std::ofstream* fr : {&fr_vargsiukai, &fr_kietiakai}) {
         *fr << left << setw(15) << "Vardas"
             << setw(15) << "Pavarde"
             << setw(17) << "Galutinis (Vid.)"
             << setw(17) << "Galutinis (Med.)" << "\n";
+    }
 
-    for (const studentas& A : vargsiukai)
+    for (const studentas& A : vargsiukai) {
         fr_vargsiukai << left << setw(15) << A.var
                       << setw(15) << A.pav
                       << setw(17) << fixed << setprecision(2) << A.rez
                       << setw(17) << A.rez_med << "\n";
+    }
 
-    for (const studentas& A : kietiakai)
+    for (const studentas& A : kietiakai) {
         fr_kietiakai << left << setw(15) << A.var
                      << setw(15) << A.pav
                      << setw(17) << fixed << setprecision(2) << A.rez
                      << setw(17) << A.rez_med << "\n";
+    }
 
     fr_vargsiukai.close();
     fr_kietiakai.close();
 
-    pabaiga = std::chrono::high_resolution_clock::now();
-    std::chrono::duration<double> isvedimo_laikas = pabaiga - pradzia;
+    pabaiga = laikrodis::now();
 
-    cout << "\nFailas: " << failo_pavadinimas << "\n";
-    cout << "Sio failo nuskaitymo laikas: " << nuskaitymo_laikas.count() << " s\n";
-    cout << "Studentu grupavimo i dvi grupes pagal pazymius laikas: " << grupavimo_laikas.count() << " s\n";
-    cout << "Isvedimo i naujus failus laikas: " << isvedimo_laikas.count() << " s\n";
-    cout << "Studentu rusiavimo pagal pasirinkta parametra laikas: "
-     << rusiavimo_laikas.count() << " s\n";
+    laikai.isvedimas =
+        std::chrono::duration<double>(pabaiga - pradzia).count();
 
-double bendras_laikas = nuskaitymo_laikas.count()
-                      + grupavimo_laikas.count()
-                      + rusiavimo_laikas.count()
-                      + isvedimo_laikas.count();
-
-std::string irasu_kiekis;
-
-if (failo_pavadinimas == "studentai_1k.txt")
-    irasu_kiekis = "1 tukst.";
-else if (failo_pavadinimas == "studentai_10k.txt")
-    irasu_kiekis = "10 tukst.";
-else if (failo_pavadinimas == "studentai_100k.txt")
-    irasu_kiekis = "100 tukst.";
-else if (failo_pavadinimas == "studentai_1m.txt")
-    irasu_kiekis = "1 mln.";
-else if (failo_pavadinimas == "studentai_10m.txt")
-    irasu_kiekis = "10 mln.";
-
-cout << irasu_kiekis << " irasu testo laikas: "
-     << bendras_laikas << " s\n";
+    return laikai;
 }
 
-void apdoroti_visus_failus() {
+void apdoroti_visus_failus(int pakartojimu_kiekis) {
     int pasirinkimas;
 
     cout << "\nPasirinkite studentu rusiavimo buda:\n";
@@ -233,18 +234,76 @@ void apdoroti_visus_failus() {
         );
     }
 
-    apdoroti_faila("studentai_1k.txt", "vargsiukai_1k.txt",
-                   "kietiakai_1k.txt", pasirinkimas);
+    struct FailoInformacija {
+        std::string pavadinimas;
+        std::string vargsiuku;
+        std::string kietiaku;
+    };
 
-    apdoroti_faila("studentai_10k.txt", "vargsiukai_10k.txt",
-                   "kietiakai_10k.txt", pasirinkimas);
+    const std::vector<FailoInformacija> failai = {
+        {"studentai_1k.txt", "vargsiukai_1k.txt", "kietiakai_1k.txt"},
+        {"studentai_10k.txt", "vargsiukai_10k.txt", "kietiakai_10k.txt"},
+        {"studentai_100k.txt", "vargsiukai_100k.txt", "kietiakai_100k.txt"},
+        {"studentai_1m.txt", "vargsiukai_1m.txt", "kietiakai_1m.txt"},
+        {"studentai_10m.txt", "vargsiukai_10m.txt", "kietiakai_10m.txt"}
+    };
 
-    apdoroti_faila("studentai_100k.txt", "vargsiukai_100k.txt",
-                   "kietiakai_100k.txt", pasirinkimas);
+    cout << "\nKiekvienam failui atliekama "
+         << pakartojimu_kiekis << " band.";
 
-    apdoroti_faila("studentai_1m.txt", "vargsiukai_1m.txt",
-                   "kietiakai_1m.txt", pasirinkimas);
+    if (pakartojimu_kiekis > 1)
+        cout << " Skaiciuojami vidurkiai.";
 
-    apdoroti_faila("studentai_10m.txt", "vargsiukai_10m.txt",
-                   "kietiakai_10m.txt", pasirinkimas);
+    cout << "\n";
+
+    for (const auto& failas : failai) {
+        MatavimoLaikai suma;
+
+        cout << "\nFailas: " << failas.pavadinimas << "\n";
+
+        for (int i = 1; i <= pakartojimu_kiekis; i++) {
+            MatavimoLaikai laikai = apdoroti_faila(
+                failas.pavadinimas,
+                failas.vargsiuku,
+                failas.kietiaku,
+                pasirinkimas
+            );
+
+            suma.nuskaitymas += laikai.nuskaitymas;
+            suma.grupavimas += laikai.grupavimas;
+            suma.rusiavimas += laikai.rusiavimas;
+            suma.isvedimas += laikai.isvedimas;
+
+            if (pakartojimu_kiekis > 1) {
+                cout << "  Bandymas " << i
+                     << ": nuskaitymas = " << laikai.nuskaitymas
+                     << " s, grupavimas = " << laikai.grupavimas
+                     << " s, rusiavimas = " << laikai.rusiavimas
+                     << " s, isvedimas = " << laikai.isvedimas
+                     << " s\n";
+            }
+        }
+
+        double n = pakartojimu_kiekis;
+
+        double nuskaitymas = suma.nuskaitymas / n;
+        double grupavimas = suma.grupavimas / n;
+        double rusiavimas = suma.rusiavimas / n;
+        double isvedimas = suma.isvedimas / n;
+
+        double bendras_laikas =
+            nuskaitymas + grupavimas + rusiavimas + isvedimas;
+
+        cout << fixed << setprecision(6);
+        cout << "Vidutinis nuskaitymo laikas: "
+             << nuskaitymas << " s\n";
+        cout << "Vidutinis grupavimo laikas: "
+             << grupavimas << " s\n";
+        cout << "Vidutinis rusiavimo laikas: "
+             << rusiavimas << " s\n";
+        cout << "Vidutinis isvedimo laikas: "
+             << isvedimas << " s\n";
+        cout << "Bendras vidutinis laikas: "
+             << bendras_laikas << " s\n";
+    }
 }
