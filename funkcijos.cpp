@@ -8,12 +8,31 @@
 #include <algorithm>
 #include <limits>
 #include <vector>
+#include <list>
+#include <type_traits>
 
 using std::cout;
 using std::left;
 using std::setw;
 using std::fixed;
 using std::setprecision;
+
+// Pagal naudojama konteineri parenka tinkama rusiavimo metoda.
+template <typename Konteineris, typename Palyginimas>
+void rusiuoti_konteineri(Konteineris& konteineris, Palyginimas palyginimas) {
+    if constexpr (
+        std::is_same_v<Konteineris, std::list<studentas>>
+    ) {
+        konteineris.sort(palyginimas);
+    }
+    else {
+        std::sort(
+            konteineris.begin(),
+            konteineris.end(),
+            palyginimas
+        );
+    }
+}
 
 void generuoti_faila(
     std::string failo_pavadinimas,
@@ -66,7 +85,10 @@ void generuoti_visus_failus(std::mt19937 &gen) {
     generuoti_faila("studentai_10m.txt", 10000000, gen);
 }
 
-MatavimoLaikai apdoroti_faila(
+// Bendra failo apdorojimo realizacija.
+// Konteinerio tipas parenkamas pagal perduodama sablono parametra.
+template <typename Konteineris>
+MatavimoLaikai apdoroti_faila_impl(
     const std::string& failo_pavadinimas,
     const std::string& vargsiuku_failas,
     const std::string& kietiaku_failas,
@@ -87,7 +109,7 @@ MatavimoLaikai apdoroti_faila(
         return laikai;
     }
 
-    std::vector<studentas> studentai;
+    Konteineris studentai;
     std::string eilute;
 
     std::getline(fd, eilute); // Praleidziama antraste
@@ -126,7 +148,7 @@ MatavimoLaikai apdoroti_faila(
     // 2. Studentu grupavimas
     pradzia = laikrodis::now();
 
-    std::vector<studentas> vargsiukai, kietiakai;
+    Konteineris vargsiukai, kietiakai;
 
     for (const studentas& A : studentai) {
         if (A.rez < 5.0)
@@ -156,16 +178,16 @@ MatavimoLaikai apdoroti_faila(
     };
 
     if (rusiavimo_parametras == 1) {
-        std::sort(vargsiukai.begin(), vargsiukai.end(), pagal_varda);
-        std::sort(kietiakai.begin(), kietiakai.end(), pagal_varda);
+        rusiuoti_konteineri(vargsiukai, pagal_varda);
+        rusiuoti_konteineri(kietiakai, pagal_varda);
     }
     else if (rusiavimo_parametras == 2) {
-        std::sort(vargsiukai.begin(), vargsiukai.end(), pagal_pavarde);
-        std::sort(kietiakai.begin(), kietiakai.end(), pagal_pavarde);
+        rusiuoti_konteineri(vargsiukai, pagal_pavarde);
+        rusiuoti_konteineri(kietiakai, pagal_pavarde);
     }
     else if (rusiavimo_parametras == 3) {
-        std::sort(vargsiukai.begin(), vargsiukai.end(), pagal_rezultata);
-        std::sort(kietiakai.begin(), kietiakai.end(), pagal_rezultata);
+        rusiuoti_konteineri(vargsiukai, pagal_rezultata);
+        rusiuoti_konteineri(kietiakai, pagal_rezultata);
     }
 
     pabaiga = laikrodis::now();
@@ -214,6 +236,36 @@ MatavimoLaikai apdoroti_faila(
         std::chrono::duration<double>(pabaiga - pradzia).count();
 
     return laikai;
+}
+
+// Esama vector versija – isorine funkcijos sasaja nesikeicia.
+MatavimoLaikai apdoroti_faila(
+    const std::string& failo_pavadinimas,
+    const std::string& vargsiuku_failas,
+    const std::string& kietiaku_failas,
+    int rusiavimo_parametras
+) {
+    return apdoroti_faila_impl<std::vector<studentas>>(
+        failo_pavadinimas,
+        vargsiuku_failas,
+        kietiaku_failas,
+        rusiavimo_parametras
+    );
+}
+
+// List versija – parengta naudoti atliekant konteineriu palyginima.
+MatavimoLaikai apdoroti_faila_list(
+    const std::string& failo_pavadinimas,
+    const std::string& vargsiuku_failas,
+    const std::string& kietiaku_failas,
+    int rusiavimo_parametras
+) {
+    return apdoroti_faila_impl<std::list<studentas>>(
+        failo_pavadinimas,
+        vargsiuku_failas,
+        kietiaku_failas,
+        rusiavimo_parametras
+    );
 }
 
 void apdoroti_visus_failus(int pakartojimu_kiekis) {
