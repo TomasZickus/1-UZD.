@@ -27,6 +27,13 @@ MatavimoLaikai apdoroti_faila(
     int rusiavimo_parametras
 );
 
+MatavimoLaikai apdoroti_faila_list(
+    const std::string& failo_pavadinimas,
+    const std::string& vargsiuku_failas,
+    const std::string& kietiaku_failas,
+    int rusiavimo_parametras
+);
+
 void apdoroti_visus_failus(int pakartojimu_kiekis);
 
 #endif
