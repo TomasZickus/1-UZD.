@@ -309,53 +309,88 @@ void apdoroti_visus_failus(int pakartojimu_kiekis) {
     cout << "\n";
 
     for (const auto& failas : failai) {
-        MatavimoLaikai suma;
+        MatavimoLaikai suma_vector;
+        MatavimoLaikai suma_list;
 
-        cout << "\nFailas: " << failas.pavadinimas << "\n";
+        cout << "\n========================================\n";
+        cout << "Failas: " << failas.pavadinimas << "\n";
 
         for (int i = 1; i <= pakartojimu_kiekis; i++) {
-            MatavimoLaikai laikai = apdoroti_faila(
+            // Apdorojimas su vector
+            MatavimoLaikai laikai_vector = apdoroti_faila(
                 failas.pavadinimas,
                 failas.vargsiuku,
                 failas.kietiaku,
                 pasirinkimas
             );
 
-            suma.nuskaitymas += laikai.nuskaitymas;
-            suma.grupavimas += laikai.grupavimas;
-            suma.rusiavimas += laikai.rusiavimas;
-            suma.isvedimas += laikai.isvedimas;
+            suma_vector.nuskaitymas += laikai_vector.nuskaitymas;
+            suma_vector.grupavimas += laikai_vector.grupavimas;
+            suma_vector.rusiavimas += laikai_vector.rusiavimas;
+            suma_vector.isvedimas += laikai_vector.isvedimas;
+
+            // Apdorojimas su list; rezultatai rasomi i atskirus failus
+            MatavimoLaikai laikai_list = apdoroti_faila_list(
+                failas.pavadinimas,
+                "list_" + failas.vargsiuku,
+                "list_" + failas.kietiaku,
+                pasirinkimas
+            );
+
+            suma_list.nuskaitymas += laikai_list.nuskaitymas;
+            suma_list.grupavimas += laikai_list.grupavimas;
+            suma_list.rusiavimas += laikai_list.rusiavimas;
+            suma_list.isvedimas += laikai_list.isvedimas;
 
             if (pakartojimu_kiekis > 1) {
-                cout << "  Bandymas " << i
-                     << ": nuskaitymas = " << laikai.nuskaitymas
-                     << " s, grupavimas = " << laikai.grupavimas
-                     << " s, rusiavimas = " << laikai.rusiavimas
-                     << " s, isvedimas = " << laikai.isvedimas
+                cout << "\n  Bandymas " << i << " - vector:\n";
+                cout << "    Nuskaitymas: " << laikai_vector.nuskaitymas
+                     << " s\n";
+                cout << "    Grupavimas: " << laikai_vector.grupavimas
+                     << " s\n";
+                cout << "    Rusiavimas: " << laikai_vector.rusiavimas
+                     << " s\n";
+                cout << "    Isvedimas: " << laikai_vector.isvedimas
+                     << " s\n";
+
+                cout << "  Bandymas " << i << " - list:\n";
+                cout << "    Nuskaitymas: " << laikai_list.nuskaitymas
+                     << " s\n";
+                cout << "    Grupavimas: " << laikai_list.grupavimas
+                     << " s\n";
+                cout << "    Rusiavimas: " << laikai_list.rusiavimas
+                     << " s\n";
+                cout << "    Isvedimas: " << laikai_list.isvedimas
                      << " s\n";
             }
         }
 
         double n = pakartojimu_kiekis;
 
-        double nuskaitymas = suma.nuskaitymas / n;
-        double grupavimas = suma.grupavimas / n;
-        double rusiavimas = suma.rusiavimas / n;
-        double isvedimas = suma.isvedimas / n;
+        auto parodyti_rezultatus = [n](const char* konteinerio_pavadinimas,
+                                      const MatavimoLaikai& suma) {
+            double nuskaitymas = suma.nuskaitymas / n;
+            double grupavimas = suma.grupavimas / n;
+            double rusiavimas = suma.rusiavimas / n;
+            double isvedimas = suma.isvedimas / n;
 
-        double bendras_laikas =
-            nuskaitymas + grupavimas + rusiavimas + isvedimas;
+            cout << "\n--- " << konteinerio_pavadinimas << " ---\n";
+            cout << "Vidutinis nuskaitymo laikas: "
+                 << nuskaitymas << " s\n";
+            cout << "Vidutinis grupavimo laikas: "
+                 << grupavimas << " s\n";
+            cout << "Vidutinis rusiavimo laikas: "
+                 << rusiavimas << " s\n";
+            cout << "Vidutinis isvedimo laikas: "
+                 << isvedimas << " s\n";
+            cout << "Bendras vidutinis laikas: "
+                 << nuskaitymas + grupavimas + rusiavimas + isvedimas
+                 << " s\n";
+        };
 
         cout << fixed << setprecision(6);
-        cout << "Vidutinis nuskaitymo laikas: "
-             << nuskaitymas << " s\n";
-        cout << "Vidutinis grupavimo laikas: "
-             << grupavimas << " s\n";
-        cout << "Vidutinis rusiavimo laikas: "
-             << rusiavimas << " s\n";
-        cout << "Vidutinis isvedimo laikas: "
-             << isvedimas << " s\n";
-        cout << "Bendras vidutinis laikas: "
-             << bendras_laikas << " s\n";
+
+        parodyti_rezultatus("VECTOR", suma_vector);
+        parodyti_rezultatus("LIST", suma_list);
     }
 }
