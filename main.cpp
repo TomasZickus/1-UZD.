@@ -2,6 +2,7 @@
 #include <iomanip>
 #include <string>
 #include <vector>
+#include <list>
 #include <random>
 #include <fstream>
 #include <sstream>
@@ -18,6 +19,7 @@ using std::setw;
 
 int main() {
     std::vector<studentas> studentai;
+    std::list<studentas> studentai_list;
     char kl;
     int pasirinkimas;
 
@@ -146,6 +148,16 @@ int main() {
 
             paskaiciuoti_rezultatus(A);
             studentai.push_back(A);
+
+            if (pasirinkimas == 1) {
+    studentai_list.push_back(A);
+
+    cout << "Objekto adresas (vector): "
+         << static_cast<const void*>(&studentai.back()) << "\n";
+
+    cout << "Objekto adresas (list): "
+         << static_cast<const void*>(&studentai_list.back()) << "\n";
+}
 
             cout << "Ar norite ivesti dar viena studenta? t/n ";
             cin >> kl;
