@@ -269,6 +269,41 @@ MatavimoLaikai apdoroti_faila_list(
 }
 
 void apdoroti_visus_failus(int pakartojimu_kiekis) {
+    struct FailoInformacija {
+        std::string pavadinimas;
+        std::string vargsiuku;
+        std::string kietiaku;
+    };
+
+    const std::vector<FailoInformacija> failai = {
+        {"studentai_1k.txt", "vargsiukai_1k.txt", "kietiakai_1k.txt"},
+        {"studentai_10k.txt", "vargsiukai_10k.txt", "kietiakai_10k.txt"},
+        {"studentai_100k.txt", "vargsiukai_100k.txt", "kietiakai_100k.txt"},
+        {"studentai_1m.txt", "vargsiukai_1m.txt", "kietiakai_1m.txt"},
+        {"studentai_10m.txt", "vargsiukai_10m.txt", "kietiakai_10m.txt"}
+    };
+
+    int failo_pasirinkimas;
+
+    cout << "\nPasirinkite, su kuriais failais atlikti spartos testus:\n";
+    cout << "0 - Visi failai paeiliui\n";
+
+    for (int i = 0; i < static_cast<int>(failai.size()); ++i)
+        cout << i + 1 << " - " << failai[i].pavadinimas << "\n";
+
+    cout << "Jusu pasirinkimas: ";
+
+    while (!(std::cin >> failo_pasirinkimas) ||
+           failo_pasirinkimas < 0 ||
+           failo_pasirinkimas > static_cast<int>(failai.size())) {
+        cout << "Neteisingas pasirinkimas. Iveskite skaiciu nuo 0 iki "
+             << failai.size() << ": ";
+        std::cin.clear();
+        std::cin.ignore(
+            std::numeric_limits<std::streamsize>::max(), '\n'
+        );
+    }
+
     int pasirinkimas;
 
     cout << "\nPasirinkite studentu rusiavimo buda:\n";
@@ -286,21 +321,7 @@ void apdoroti_visus_failus(int pakartojimu_kiekis) {
         );
     }
 
-    struct FailoInformacija {
-        std::string pavadinimas;
-        std::string vargsiuku;
-        std::string kietiaku;
-    };
-
-    const std::vector<FailoInformacija> failai = {
-        {"studentai_1k.txt", "vargsiukai_1k.txt", "kietiakai_1k.txt"},
-        {"studentai_10k.txt", "vargsiukai_10k.txt", "kietiakai_10k.txt"},
-        {"studentai_100k.txt", "vargsiukai_100k.txt", "kietiakai_100k.txt"},
-        {"studentai_1m.txt", "vargsiukai_1m.txt", "kietiakai_1m.txt"},
-        {"studentai_10m.txt", "vargsiukai_10m.txt", "kietiakai_10m.txt"}
-    };
-
-    cout << "\nKiekvienam failui atliekama "
+    cout << "\nKiekvienam pasirinktam failui atliekama "
          << pakartojimu_kiekis << " band.";
 
     if (pakartojimu_kiekis > 1)
@@ -308,7 +329,11 @@ void apdoroti_visus_failus(int pakartojimu_kiekis) {
 
     cout << "\n";
 
-    for (const auto& failas : failai) {
+    for (int j = 0; j < static_cast<int>(failai.size()); ++j) {
+        if (failo_pasirinkimas != 0 && failo_pasirinkimas != j + 1)
+            continue;
+
+        const auto& failas = failai[j];
         MatavimoLaikai suma_vector;
         MatavimoLaikai suma_list;
 
