@@ -22,3 +22,15 @@ Testavimo rezultatai:
 | studentai_1m.txt | 1 000 000 | list | 2.206596 | 0.459248 | 1.292069 | 2.321948 | 6.279861 |
 | studentai_10m.txt | 10 000 000 | vector | 24.085971 | 4.630377 | 42.440929 | 19.776977 | 90.934255 |
 | studentai_10m.txt | 10 000 000 | list | 22.935342 | 4.921021 | 17.369295 | 21.858432 | 67.084090 |
+
+Rezultatų analizė:
+
+Bendras veikimo laikas: std::list buvo greitesnis visų penkių dydžių failų atveju.
+
+Duomenų nuskaitymas: rezultatai panašūs, tačiau std::list buvo šiek tiek greitesnis visais penkiais atvejais.
+
+Grupavimas: rezultatai buvo panašūs; std::vector buvo greitesnis su 1 000, 10 000 ir 10 000 000 įrašų.
+
+Rūšiavimas: std::list rūšiavimas buvo gerokai greitesnis, ypač didesnių failų atveju.
+
+Išvedimas į failus: std::list buvo greitesnis su 1 000, 10 000 ir 100 000 įrašų, o std::vector – su 1 000 000 ir 10 000 000 įrašų.
