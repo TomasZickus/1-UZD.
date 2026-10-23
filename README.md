@@ -1,3 +1,6 @@
+Programos spartos, dirbant su skirtingais konteinerių tipais ir skirtingo dydžio failais, testavimas
+
+Visi testai atlikti su penkiais skirtingo dydžio failais, kiekvienam iš jų naudojant du skirtingus konteinerių tipus - vector ir list. Kiekvieno bandymo metu buvo atliekamas 4 atskirų operacijų - nuskaitymo, grupavimo, rūšiavimo, išvedimo laiko - matavimas. Kiekvienas bandymas pakartotas po 3 kartus. Lentelėje pateikti pagal tuos 3 bandymus apskaičiuoti vidutiniai kiekvienos operacijos veikimo laikai ir iš jų susumuotas bendras vidutinis veikimo laikas.
 
 Testavimo rezultatai:
 
