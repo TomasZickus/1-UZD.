@@ -28,7 +28,7 @@ int main() {
     cout << "2 - Generuoti pazymius atsitiktinai\n";
     cout << "3 - Nuskaityti is failo\n";
     cout << "4 - Sugeneruoti 5 failus ir juos apdoroti\n";
-    cout << "5 - Pakartoti spartos testus su esamais failais\n";
+    cout << "5 - Atlikti spartos testus su esamais failais\n";
     cout << "Jusu pasirinkimas: ";
 
     if (!(cin >> pasirinkimas) || pasirinkimas < 1 || pasirinkimas > 5) {
