@@ -2,6 +2,12 @@ Programos spartos, dirbant su skirtingais konteinerių tipais ir skirtingo dydž
 
 Visi testai atlikti su penkiais skirtingo dydžio failais, kiekvienam iš jų naudojant du skirtingus konteinerių tipus - vector ir list. Kiekvieno bandymo metu buvo atliekamas 4 atskirų operacijų - nuskaitymo, grupavimo, rūšiavimo, išvedimo laiko - matavimas. Kiekvienas bandymas pakartotas po 3 kartus. Lentelėje pateikti pagal tuos 3 bandymus apskaičiuoti vidutiniai kiekvienos operacijos veikimo laikai ir iš jų susumuotas bendras vidutinis veikimo laikas.
 
+Testavimo sistemos parametrai:
+
+<img width="1327" height="887" alt="CPU" src="https://github.com/user-attachments/assets/656c7e91-e8ad-48c7-a708-e29e86575a52" />
+<img width="1325" height="876" alt="RAM" src="https://github.com/user-attachments/assets/6902aed2-a6f7-4aac-a825-afc2aaadffc3" />
+<img width="1325" height="883" alt="SSD" src="https://github.com/user-attachments/assets/50c5c9ea-eb4b-4e51-86c9-f6d9b8d473b5" />
+
 Testavimo rezultatai:
 
 | Failas | Įrašų skaičius | Konteineris | Nuskaitymas (s) | Grupavimas (s) | Rūšiavimas (s) | Išvedimas (s) | Bendras laikas (s) |
