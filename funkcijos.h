@@ -57,4 +57,12 @@ MatavimoLaikai apdoroti_faila_list_2strategija(
     int rusiavimo_parametras = RUSIAVIMAS_PAGAL_REZULTATA
 );
 
+// 3 strategija – optimizuota 1 strategija, vector
+MatavimoLaikai apdoroti_faila_3strategija(
+    const std::string& failo_pavadinimas,
+    const std::string& vargsiuku_failas,
+    const std::string& kietiaku_failas,
+    int rusiavimo_parametras = RUSIAVIMAS_PAGAL_REZULTATA
+);
+
 #endif
