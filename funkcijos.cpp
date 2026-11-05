@@ -10,6 +10,7 @@
 #include <list>
 #include <type_traits>
 #include <utility>
+#include <iterator>
 
 using std::cout;
 using std::left;
@@ -95,15 +96,13 @@ void generuoti_visus_failus(std::mt19937& gen) {
 
 
 // Bendra failo apdorojimo realizacija.
-// Konteinerio tipas ir grupavimo strategija parenkami
-// pagal šablono parametrą ir funkcijos argumentą.
 template <typename Konteineris>
 MatavimoLaikai apdoroti_faila_impl(
     const std::string& failo_pavadinimas,
     const std::string& vargsiuku_failas,
     const std::string& kietiaku_failas,
     int rusiavimo_parametras,
-    bool antra_strategija
+    int strategija
 ) {
     using laikrodis = std::chrono::steady_clock;
 
@@ -166,7 +165,7 @@ MatavimoLaikai apdoroti_faila_impl(
 
     Konteineris vargsiukai, kietiakai;
 
-    if (!antra_strategija) {
+    if (strategija == 1) {
 
         // 1 strategija:
         // Studentai kopijuojami į du naujus konteinerius.
@@ -178,7 +177,7 @@ MatavimoLaikai apdoroti_faila_impl(
                 kietiakai.push_back(A);
         }
     }
-    else {
+    else if (strategija == 2) {
 
         // 2 strategija:
         // Vargšiukai perkeliami į naują konteinerį,
@@ -196,10 +195,34 @@ MatavimoLaikai apdoroti_faila_impl(
             }
         }
     }
+    else if (strategija == 3) {
+
+        // 3 strategija:
+        // Optimizuota 1 strategija naudojant remove_copy_if.
+        // Pradinis studentai konteineris išsaugomas.
+
+        std::remove_copy_if(
+            studentai.begin(),
+            studentai.end(),
+            std::back_inserter(vargsiukai),
+            [](const studentas& A) {
+                return A.rez >= 5.0;
+            }
+        );
+
+        std::remove_copy_if(
+            studentai.begin(),
+            studentai.end(),
+            std::back_inserter(kietiakai),
+            [](const studentas& A) {
+                return A.rez < 5.0;
+            }
+        );
+    }
 
     // Nustatoma, kuriame konteineryje liko kietiakai.
     Konteineris& kietiaku_grupe =
-        antra_strategija ? studentai : kietiakai;
+        strategija == 2 ? studentai : kietiakai;
 
     pabaiga = laikrodis::now();
 
@@ -307,7 +330,7 @@ MatavimoLaikai apdoroti_faila(
         vargsiuku_failas,
         kietiaku_failas,
         rusiavimo_parametras,
-        false
+        1
     );
 }
 
@@ -325,7 +348,7 @@ MatavimoLaikai apdoroti_faila_list(
         vargsiuku_failas,
         kietiaku_failas,
         rusiavimo_parametras,
-        false
+        1
     );
 }
 
@@ -347,7 +370,7 @@ MatavimoLaikai apdoroti_faila_2strategija(
         vargsiuku_failas,
         kietiaku_failas,
         rusiavimo_parametras,
-        true
+        2
     );
 }
 
@@ -365,6 +388,28 @@ MatavimoLaikai apdoroti_faila_list_2strategija(
         vargsiuku_failas,
         kietiaku_failas,
         rusiavimo_parametras,
-        true
+        2
+    );
+}
+
+
+// ==================================================
+// 3 STRATEGIJA
+// ==================================================
+
+// 3 strategija – optimizuota 1 strategija, vector
+
+MatavimoLaikai apdoroti_faila_3strategija(
+    const std::string& failo_pavadinimas,
+    const std::string& vargsiuku_failas,
+    const std::string& kietiaku_failas,
+    int rusiavimo_parametras
+) {
+    return apdoroti_faila_impl<std::vector<studentas>>(
+        failo_pavadinimas,
+        vargsiuku_failas,
+        kietiaku_failas,
+        rusiavimo_parametras,
+        3
     );
 }
