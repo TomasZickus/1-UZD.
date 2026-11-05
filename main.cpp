@@ -32,6 +32,7 @@ struct Failas {
     std::string dydis;
 };
 
+
 // Suskaičiuoja vieno konteinerio vidutinius laikus
 MatavimoLaikai matuoti_vidurki(
     ApdorojimoFunkcija funkcija,
@@ -67,6 +68,7 @@ MatavimoLaikai matuoti_vidurki(
     return suma;
 }
 
+
 // Išveda vieno konteinerio matavimo laikus
 void isvesti_laikus(
     const std::string& konteineris,
@@ -80,10 +82,11 @@ void isvesti_laikus(
 
     cout << "Nuskaitymas: " << t.nuskaitymas << " s\n";
     cout << "Grupavimas:  " << t.grupavimas << " s\n";
-    cout << "Rusiavimas: " << t.rusiavimas << " s\n";
+    cout << "Rusiavimas:  " << t.rusiavimas << " s\n";
     cout << "Isvedimas:   " << t.isvedimas << " s\n";
     cout << "Bendras:     " << bendras << " s\n";
 }
+
 
 // Atlieka pasirinktos strategijos testą su vienu failu
 void testuoti_faila(
@@ -91,6 +94,32 @@ void testuoti_faila(
     int strategija,
     int bandymu_kiekis
 ) {
+    std::string strategijos_pavadinimas =
+        "s" + std::to_string(strategija);
+
+    cout << "\n========================================\n";
+    cout << "Failas: " << failas.pavadinimas << "\n";
+    cout << "Strategija: " << strategija << "\n";
+    cout << "Bandymu skaicius: " << bandymu_kiekis << "\n";
+    cout << "========================================\n";
+
+
+    // 3 strategija – testuojamas tik vector
+    if (strategija == 3) {
+        MatavimoLaikai vector_laikai = matuoti_vidurki(
+            apdoroti_faila_3strategija,
+            failas.pavadinimas,
+            "vargsiukai_s3_vector_" + failas.dydis + ".txt",
+            "kietiakai_s3_vector_" + failas.dydis + ".txt",
+            bandymu_kiekis
+        );
+
+        isvesti_laikus("VECTOR - 3 strategija", vector_laikai);
+        return;
+    }
+
+
+    // 1 ir 2 strategijos – vector ir list
     ApdorojimoFunkcija vector_funkcija;
     ApdorojimoFunkcija list_funkcija;
 
@@ -102,15 +131,6 @@ void testuoti_faila(
         vector_funkcija = apdoroti_faila_2strategija;
         list_funkcija = apdoroti_faila_list_2strategija;
     }
-
-    std::string strategijos_pavadinimas =
-        "s" + std::to_string(strategija);
-
-    cout << "\n========================================\n";
-    cout << "Failas: " << failas.pavadinimas << "\n";
-    cout << "Strategija: " << strategija << "\n";
-    cout << "Bandymu skaicius: " << bandymu_kiekis << "\n";
-    cout << "========================================\n";
 
     // Vector testas
     MatavimoLaikai vector_laikai = matuoti_vidurki(
@@ -138,6 +158,7 @@ void testuoti_faila(
     isvesti_laikus("LIST", list_laikai);
 }
 
+
 // Pasirinkto failo arba visų failų testavimas
 void pasirinkti_testus() {
     const std::array<Failas, 5> failai = {{
@@ -154,10 +175,11 @@ void pasirinkti_testus() {
     cout << "\nPasirinkite grupavimo strategija:\n";
     cout << "1 - Pirmoji strategija\n";
     cout << "2 - Antroji strategija\n";
+    cout << "3 - Trecioji strategija (pirmosios optimizacija, taikoma tik vector)\n";
     cout << "Jusu pasirinkimas: ";
 
     if (!(cin >> strategija) ||
-        (strategija != 1 && strategija != 2)) {
+        (strategija < 1 || strategija > 3)) {
         cout << "Neteisingas pasirinkimas.\n";
         return;
     }
@@ -200,6 +222,7 @@ void pasirinkti_testus() {
     cout << "\nTestavimas baigtas.\n";
 }
 
+
 int main() {
     std::vector<studentas> studentai;
     std::list<studentas> studentai_list;
@@ -223,6 +246,7 @@ int main() {
 
     std::random_device rd;
     std::mt19937 gen(rd());
+
 
     // 4 pasirinkimas: failų generavimas ir apdorojimas
     if (pasirinkimas == 4) {
@@ -264,11 +288,13 @@ int main() {
         return 0;
     }
 
+
     // 5 pasirinkimas: spartos testavimas
     if (pasirinkimas == 5) {
         pasirinkti_testus();
         return 0;
     }
+
 
     // 3 pasirinkimas: duomenų nuskaitymas iš failo
     if (pasirinkimas == 3) {
@@ -315,6 +341,7 @@ int main() {
         fd.close();
         cout << "Duomenys sekmingai nuskaityti.\n";
     }
+
 
     // 1 ir 2 pasirinkimai: rankinis arba atsitiktinis įvedimas
     else {
@@ -389,6 +416,7 @@ int main() {
                 break;
         }
     }
+
 
     // Rezultatų išvedimas ekrane
     int plotis = 15 + 15 + 17 + 17 + 5;
