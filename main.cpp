@@ -6,6 +6,7 @@
 #include <random>
 #include <fstream>
 #include <sstream>
+#include <array>
 
 #include "studentas.h"
 #include "funkcijos.h"
@@ -17,9 +18,170 @@ using std::left;
 using std::setprecision;
 using std::setw;
 
+// Apdorojimo funkcijos tipas
+using ApdorojimoFunkcija = MatavimoLaikai (*)(
+    const std::string&,
+    const std::string&,
+    const std::string&,
+    int
+);
+
+// Vieno failo informacija
+struct Failas {
+    std::string pavadinimas;
+    std::string dydis;
+};
+
+// Suskaičiuoja vieno konteinerio vidutinius laikus
+MatavimoLaikai matuoti_vidurki(
+    ApdorojimoFunkcija funkcija,
+    const std::string& failas,
+    const std::string& vargs,
+    const std::string& kiet,
+    int bandymu_kiekis
+) {
+    MatavimoLaikai suma{};
+
+    for (int i = 0; i < bandymu_kiekis; i++) {
+        MatavimoLaikai laikai = funkcija(failas, vargs, kiet, 1);
+
+        suma.nuskaitymas += laikai.nuskaitymas;
+        suma.grupavimas += laikai.grupavimas;
+        suma.rusiavimas += laikai.rusiavimas;
+        suma.isvedimas += laikai.isvedimas;
+    }
+
+    suma.nuskaitymas /= bandymu_kiekis;
+    suma.grupavimas /= bandymu_kiekis;
+    suma.rusiavimas /= bandymu_kiekis;
+    suma.isvedimas /= bandymu_kiekis;
+
+    return suma;
+}
+
+// Išveda vieno konteinerio vidutinius laikus
+void isvesti_laikus(const std::string& konteineris, const MatavimoLaikai& t) {
+    double bendras = t.nuskaitymas + t.grupavimas +
+                     t.rusiavimas + t.isvedimas;
+
+    cout << "\n" << konteineris << ":\n";
+    cout << fixed << setprecision(5);
+
+    cout << "Nuskaitymas: " << t.nuskaitymas << " s\n";
+    cout << "Grupavimas:  " << t.grupavimas << " s\n";
+    cout << "Rusavimas:   " << t.rusiavimas << " s\n";
+    cout << "Isvedimas:   " << t.isvedimas << " s\n";
+    cout << "Bendras:     " << bendras << " s\n";
+}
+
+// Atlieka pasirinktos strategijos testą su vienu failu
+void testuoti_faila(
+    const Failas& failas,
+    int strategija,
+    int bandymu_kiekis
+) {
+    ApdorojimoFunkcija vector_funkcija;
+    ApdorojimoFunkcija list_funkcija;
+
+    if (strategija == 1) {
+        vector_funkcija = apdoroti_faila;
+        list_funkcija = apdoroti_faila_list;
+    }
+    else {
+        vector_funkcija = apdoroti_faila_2strategija;
+        list_funkcija = apdoroti_faila_list_2strategija;
+    }
+
+    std::string strategijos_pavadinimas = "s" + std::to_string(strategija);
+
+    cout << "\n========================================\n";
+    cout << "Failas: " << failas.pavadinimas << "\n";
+    cout << "Strategija: " << strategija << "\n";
+    cout << "Bandymu skaicius: " << bandymu_kiekis << "\n";
+    cout << "========================================\n";
+
+    // Vector testas
+    MatavimoLaikai vector_laikai = matuoti_vidurki(
+        vector_funkcija,
+        failas.pavadinimas,
+        "vargsiukai_" + strategijos_pavadinimas + "_vector_" + failas.dydis + ".txt",
+        "kietiakai_" + strategijos_pavadinimas + "_vector_" + failas.dydis + ".txt",
+        bandymu_kiekis
+    );
+
+    // List testas
+    MatavimoLaikai list_laikai = matuoti_vidurki(
+        list_funkcija,
+        failas.pavadinimas,
+        "vargsiukai_" + strategijos_pavadinimas + "_list_" + failas.dydis + ".txt",
+        "kietiakai_" + strategijos_pavadinimas + "_list_" + failas.dydis + ".txt",
+        bandymu_kiekis
+    );
+
+    isvesti_laikus("VECTOR", vector_laikai);
+    isvesti_laikus("LIST", list_laikai);
+}
+
+// Pasirinkto failo arba visų failų testavimas
+void pasirinkti_testus() {
+    const std::array<Failas, 5> failai = {{
+        {"studentai_1k.txt", "1k"},
+        {"studentai_10k.txt", "10k"},
+        {"studentai_100k.txt", "100k"},
+        {"studentai_1m.txt", "1m"},
+        {"studentai_10m.txt", "10m"}
+    }};
+
+    int strategija;
+    int failo_pasirinkimas;
+
+    cout << "\nPasirinkite grupavimo strategija:\n";
+    cout << "1 - Pirmoji strategija\n";
+    cout << "2 - Antroji strategija\n";
+    cout << "Jusu pasirinkimas: ";
+
+    if (!(cin >> strategija) || (strategija != 1 && strategija != 2)) {
+        cout << "Neteisingas pasirinkimas.\n";
+        return;
+    }
+
+    cout << "\nPasirinkite faila testavimui:\n";
+
+    for (int i = 0; i < 5; i++) {
+        cout << i + 1 << " - " << failai[i].pavadinimas << "\n";
+    }
+
+    cout << "6 - Visi failai paeiliui\n";
+    cout << "Jusu pasirinkimas: ";
+
+    if (!(cin >> failo_pasirinkimas) ||
+        failo_pasirinkimas < 1 || failo_pasirinkimas > 6) {
+        cout << "Neteisingas pasirinkimas.\n";
+        return;
+    }
+
+    const int bandymu_kiekis = 3;
+
+    if (failo_pasirinkimas == 6) {
+        for (const Failas& failas : failai) {
+            testuoti_faila(failas, strategija, bandymu_kiekis);
+        }
+    }
+    else {
+        testuoti_faila(
+            failai[failo_pasirinkimas - 1],
+            strategija,
+            bandymu_kiekis
+        );
+    }
+
+    cout << "\nTestavimas baigtas.\n";
+}
+
 int main() {
     std::vector<studentas> studentai;
     std::list<studentas> studentai_list;
+
     char kl;
     int pasirinkimas;
 
@@ -48,9 +210,7 @@ int main() {
     }
 
     if (pasirinkimas == 5) {
-        cout << "\nBus atliekami 3 testavimo bandymai.\n";
-        cout << "Naudojami jau egzistuojantys failai.\n";
-        apdoroti_visus_failus(3);
+        pasirinkti_testus();
         return 0;
     }
 
@@ -150,14 +310,14 @@ int main() {
             studentai.push_back(A);
 
             if (pasirinkimas == 1) {
-    studentai_list.push_back(A);
+                studentai_list.push_back(A);
 
-    cout << "Objekto adresas (vector): "
-         << static_cast<const void*>(&studentai.back()) << "\n";
+                cout << "Objekto adresas (vector): "
+                     << static_cast<const void*>(&studentai.back()) << "\n";
 
-    cout << "Objekto adresas (list): "
-         << static_cast<const void*>(&studentai_list.back()) << "\n";
-}
+                cout << "Objekto adresas (list): "
+                     << static_cast<const void*>(&studentai_list.back()) << "\n";
+            }
 
             cout << "Ar norite ivesti dar viena studenta? t/n ";
             cin >> kl;
