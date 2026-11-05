@@ -6,7 +6,6 @@
 #include <sstream>
 #include <chrono>
 #include <algorithm>
-#include <limits>
 #include <vector>
 #include <list>
 #include <type_traits>
@@ -18,9 +17,13 @@ using std::setw;
 using std::fixed;
 using std::setprecision;
 
-// Pagal naudojama konteineri parenka tinkama rusiavimo metoda.
+
+// Pagal naudojamą konteinerį parenkamas tinkamas rūšiavimo metodas.
 template <typename Konteineris, typename Palyginimas>
-void rusiuoti_konteineri(Konteineris& konteineris, Palyginimas palyginimas) {
+void rusiuoti_konteineri(
+    Konteineris& konteineris,
+    Palyginimas palyginimas
+) {
     if constexpr (
         std::is_same_v<Konteineris, std::list<studentas>>
     ) {
@@ -35,10 +38,12 @@ void rusiuoti_konteineri(Konteineris& konteineris, Palyginimas palyginimas) {
     }
 }
 
+
+// Sugeneruoja vieną studentų failą.
 void generuoti_faila(
-    std::string failo_pavadinimas,
+    const std::string& failo_pavadinimas,
     int kiek_studentu,
-    std::mt19937 &gen
+    std::mt19937& gen
 ) {
     auto pradzia = std::chrono::steady_clock::now();
 
@@ -78,7 +83,9 @@ void generuoti_faila(
          << " | Kurimo laikas: " << trukme.count() << " s\n";
 }
 
-void generuoti_visus_failus(std::mt19937 &gen) {
+
+// Sugeneruoja visus penkis studentų failus.
+void generuoti_visus_failus(std::mt19937& gen) {
     generuoti_faila("studentai_1k.txt", 1000, gen);
     generuoti_faila("studentai_10k.txt", 10000, gen);
     generuoti_faila("studentai_100k.txt", 100000, gen);
@@ -86,8 +93,10 @@ void generuoti_visus_failus(std::mt19937 &gen) {
     generuoti_faila("studentai_10m.txt", 10000000, gen);
 }
 
+
 // Bendra failo apdorojimo realizacija.
-// Konteinerio tipas ir strategija parenkami pagal sablono parametrus.
+// Konteinerio tipas ir grupavimo strategija parenkami
+// pagal šablono parametrą ir funkcijos argumentą.
 template <typename Konteineris>
 MatavimoLaikai apdoroti_faila_impl(
     const std::string& failo_pavadinimas,
@@ -100,7 +109,8 @@ MatavimoLaikai apdoroti_faila_impl(
 
     MatavimoLaikai laikai;
 
-    // 1. Duomenu nuskaitymas ir rezultatu skaiciavimas
+    // 1. Duomenų nuskaitymas ir rezultatų skaičiavimas
+
     auto pradzia = laikrodis::now();
 
     std::ifstream fd(failo_pavadinimas);
@@ -114,12 +124,14 @@ MatavimoLaikai apdoroti_faila_impl(
     Konteineris studentai;
     std::string eilute;
 
-    std::getline(fd, eilute); // Praleidziama antraste
+    std::getline(fd, eilute); // Praleidžiama antraštė
 
     while (std::getline(fd, eilute)) {
-        if (eilute.empty()) continue;
+        if (eilute.empty())
+            continue;
 
         std::istringstream iss(eilute);
+
         studentas A;
         int pazymys;
 
@@ -147,14 +159,17 @@ MatavimoLaikai apdoroti_faila_impl(
     laikai.nuskaitymas =
         std::chrono::duration<double>(pabaiga - pradzia).count();
 
-    // 2. Studentu grupavimas
+
+    // 2. Studentų grupavimas
+
     pradzia = laikrodis::now();
 
     Konteineris vargsiukai, kietiakai;
 
     if (!antra_strategija) {
+
         // 1 strategija:
-        // Studentai kopijuojami i du naujus konteinerius.
+        // Studentai kopijuojami į du naujus konteinerius.
 
         for (const studentas& A : studentai) {
             if (A.rez < 5.0)
@@ -164,15 +179,16 @@ MatavimoLaikai apdoroti_faila_impl(
         }
     }
     else {
+
         // 2 strategija:
-        // Vargsiukai perkeliami i nauja konteineri
-        // ir istrinami is pradinio studentai konteinerio.
+        // Vargšiukai perkeliami į naują konteinerį,
+        // o iš pradinio studentai konteinerio ištrinami.
 
         auto it = studentai.begin();
 
         while (it != studentai.end()) {
             if (it->rez < 5.0) {
-                vargsiukai.push_back(*it);
+                vargsiukai.push_back(std::move(*it));
                 it = studentai.erase(it);
             }
             else {
@@ -181,7 +197,7 @@ MatavimoLaikai apdoroti_faila_impl(
         }
     }
 
-    // Nustatoma, kuriame konteineryje yra kietiakai.
+    // Nustatoma, kuriame konteineryje liko kietiakai.
     Konteineris& kietiaku_grupe =
         antra_strategija ? studentai : kietiakai;
 
@@ -190,7 +206,9 @@ MatavimoLaikai apdoroti_faila_impl(
     laikai.grupavimas =
         std::chrono::duration<double>(pabaiga - pradzia).count();
 
-    // 3. Studentu rusiavimas
+
+    // 3. Studentų rūšiavimas
+
     pradzia = laikrodis::now();
 
     auto pagal_varda = [](const studentas& a, const studentas& b) {
@@ -223,7 +241,9 @@ MatavimoLaikai apdoroti_faila_impl(
     laikai.rusiavimas =
         std::chrono::duration<double>(pabaiga - pradzia).count();
 
-    // 4. Rezultatu isvedimas i failus
+
+    // 4. Rezultatų išvedimas į failus
+
     pradzia = laikrodis::now();
 
     std::ofstream fr_vargsiukai(vargsiuku_failas);
@@ -234,6 +254,7 @@ MatavimoLaikai apdoroti_faila_impl(
         return laikai;
     }
 
+    // Antraštės
     for (std::ofstream* fr : {&fr_vargsiukai, &fr_kietiakai}) {
         *fr << left << setw(15) << "Vardas"
             << setw(15) << "Pavarde"
@@ -241,6 +262,7 @@ MatavimoLaikai apdoroti_faila_impl(
             << setw(17) << "Galutinis (Med.)" << "\n";
     }
 
+    // Vargšiukų išvedimas
     for (const studentas& A : vargsiukai) {
         fr_vargsiukai << left << setw(15) << A.var
                       << setw(15) << A.pav
@@ -248,6 +270,7 @@ MatavimoLaikai apdoroti_faila_impl(
                       << setw(17) << A.rez_med << "\n";
     }
 
+    // Kietiakų išvedimas
     for (const studentas& A : kietiaku_grupe) {
         fr_kietiakai << left << setw(15) << A.var
                      << setw(15) << A.pav
@@ -266,7 +289,13 @@ MatavimoLaikai apdoroti_faila_impl(
     return laikai;
 }
 
+
+// ==================================================
+// 1 STRATEGIJA
+// ==================================================
+
 // 1 strategija – vector
+
 MatavimoLaikai apdoroti_faila(
     const std::string& failo_pavadinimas,
     const std::string& vargsiuku_failas,
@@ -282,7 +311,9 @@ MatavimoLaikai apdoroti_faila(
     );
 }
 
+
 // 1 strategija – list
+
 MatavimoLaikai apdoroti_faila_list(
     const std::string& failo_pavadinimas,
     const std::string& vargsiuku_failas,
@@ -298,7 +329,13 @@ MatavimoLaikai apdoroti_faila_list(
     );
 }
 
+
+// ==================================================
+// 2 STRATEGIJA
+// ==================================================
+
 // 2 strategija – vector
+
 MatavimoLaikai apdoroti_faila_2strategija(
     const std::string& failo_pavadinimas,
     const std::string& vargsiuku_failas,
@@ -314,7 +351,9 @@ MatavimoLaikai apdoroti_faila_2strategija(
     );
 }
 
+
 // 2 strategija – list
+
 MatavimoLaikai apdoroti_faila_list_2strategija(
     const std::string& failo_pavadinimas,
     const std::string& vargsiuku_failas,
@@ -328,158 +367,4 @@ MatavimoLaikai apdoroti_faila_list_2strategija(
         rusiavimo_parametras,
         true
     );
-}
-
-void apdoroti_visus_failus(int pakartojimu_kiekis) {
-    struct FailoInformacija {
-        std::string pavadinimas;
-        std::string vargsiuku;
-        std::string kietiaku;
-    };
-
-    const std::vector<FailoInformacija> failai = {
-        {"studentai_1k.txt", "vargsiukai_1k.txt", "kietiakai_1k.txt"},
-        {"studentai_10k.txt", "vargsiukai_10k.txt", "kietiakai_10k.txt"},
-        {"studentai_100k.txt", "vargsiukai_100k.txt", "kietiakai_100k.txt"},
-        {"studentai_1m.txt", "vargsiukai_1m.txt", "kietiakai_1m.txt"},
-        {"studentai_10m.txt", "vargsiukai_10m.txt", "kietiakai_10m.txt"}
-    };
-
-    int failo_pasirinkimas;
-
-    cout << "\nPasirinkite, su kuriais failais atlikti spartos testus:\n";
-    cout << "0 - Visi failai paeiliui\n";
-
-    for (int i = 0; i < static_cast<int>(failai.size()); ++i)
-        cout << i + 1 << " - " << failai[i].pavadinimas << "\n";
-
-    cout << "Jusu pasirinkimas: ";
-
-    while (!(std::cin >> failo_pasirinkimas) ||
-           failo_pasirinkimas < 0 ||
-           failo_pasirinkimas > static_cast<int>(failai.size())) {
-        cout << "Neteisingas pasirinkimas. Iveskite skaiciu nuo 0 iki "
-             << failai.size() << ": ";
-        std::cin.clear();
-        std::cin.ignore(
-            std::numeric_limits<std::streamsize>::max(), '\n'
-        );
-    }
-
-    int pasirinkimas;
-
-    cout << "\nPasirinkite studentu rusiavimo buda:\n";
-    cout << "1 - Pagal varda (A-Z)\n";
-    cout << "2 - Pagal pavarde (A-Z)\n";
-    cout << "3 - Pagal galutini bala (nuo didziausio iki maziausio)\n";
-    cout << "Jusu pasirinkimas: ";
-
-    while (!(std::cin >> pasirinkimas) ||
-           pasirinkimas < 1 || pasirinkimas > 3) {
-        cout << "Neteisingas pasirinkimas. Iveskite 1, 2 arba 3: ";
-        std::cin.clear();
-        std::cin.ignore(
-            std::numeric_limits<std::streamsize>::max(), '\n'
-        );
-    }
-
-    cout << "\nKiekvienam pasirinktam failui atliekama "
-         << pakartojimu_kiekis << " band.";
-
-    if (pakartojimu_kiekis > 1)
-        cout << " Skaiciuojami vidurkiai.";
-
-    cout << "\n";
-
-    for (int j = 0; j < static_cast<int>(failai.size()); ++j) {
-        if (failo_pasirinkimas != 0 && failo_pasirinkimas != j + 1)
-            continue;
-
-        const auto& failas = failai[j];
-        MatavimoLaikai suma_vector;
-        MatavimoLaikai suma_list;
-
-        cout << "\n========================================\n";
-        cout << "Failas: " << failas.pavadinimas << "\n";
-
-        for (int i = 1; i <= pakartojimu_kiekis; i++) {
-            // Apdorojimas su vector
-            MatavimoLaikai laikai_vector = apdoroti_faila(
-                failas.pavadinimas,
-                failas.vargsiuku,
-                failas.kietiaku,
-                pasirinkimas
-            );
-
-            suma_vector.nuskaitymas += laikai_vector.nuskaitymas;
-            suma_vector.grupavimas += laikai_vector.grupavimas;
-            suma_vector.rusiavimas += laikai_vector.rusiavimas;
-            suma_vector.isvedimas += laikai_vector.isvedimas;
-
-            // Apdorojimas su list
-            MatavimoLaikai laikai_list = apdoroti_faila_list(
-                failas.pavadinimas,
-                "list_" + failas.vargsiuku,
-                "list_" + failas.kietiaku,
-                pasirinkimas
-            );
-
-            suma_list.nuskaitymas += laikai_list.nuskaitymas;
-            suma_list.grupavimas += laikai_list.grupavimas;
-            suma_list.rusiavimas += laikai_list.rusiavimas;
-            suma_list.isvedimas += laikai_list.isvedimas;
-
-            if (pakartojimu_kiekis > 1) {
-                cout << "\n  Bandymas " << i << " - vector:\n";
-                cout << "    Nuskaitymas: " << laikai_vector.nuskaitymas
-                     << " s\n";
-                cout << "    Grupavimas: " << laikai_vector.grupavimas
-                     << " s\n";
-                cout << "    Rusiavimas: " << laikai_vector.rusiavimas
-                     << " s\n";
-                cout << "    Isvedimas: " << laikai_vector.isvedimas
-                     << " s\n";
-
-                cout << "  Bandymas " << i << " - list:\n";
-                cout << "    Nuskaitymas: " << laikai_list.nuskaitymas
-                     << " s\n";
-                cout << "    Grupavimas: " << laikai_list.grupavimas
-                     << " s\n";
-                cout << "    Rusiavimas: " << laikai_list.rusiavimas
-                     << " s\n";
-                cout << "    Isvedimas: " << laikai_list.isvedimas
-                     << " s\n";
-            }
-        }
-
-        double n = pakartojimu_kiekis;
-
-        auto parodyti_rezultatus = [n](
-            const char* konteinerio_pavadinimas,
-            const MatavimoLaikai& suma
-        ) {
-            double nuskaitymas = suma.nuskaitymas / n;
-            double grupavimas = suma.grupavimas / n;
-            double rusiavimas = suma.rusiavimas / n;
-            double isvedimas = suma.isvedimas / n;
-
-            cout << "\n--- " << konteinerio_pavadinimas << " ---\n";
-            cout << "Vidutinis nuskaitymo laikas: "
-                 << nuskaitymas << " s\n";
-            cout << "Vidutinis grupavimo laikas: "
-                 << grupavimas << " s\n";
-            cout << "Vidutinis rusiavimo laikas: "
-                 << rusiavimas << " s\n";
-            cout << "Vidutinis isvedimo laikas: "
-                 << isvedimas << " s\n";
-            cout << "Bendras vidutinis laikas: "
-                 << nuskaitymas + grupavimas + rusiavimas + isvedimas
-                 << " s\n";
-        };
-
-        cout << fixed << setprecision(6);
-
-        parodyti_rezultatus("VECTOR", suma_vector);
-        parodyti_rezultatus("LIST", suma_list);
-    }
 }
