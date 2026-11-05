@@ -42,8 +42,16 @@ MatavimoLaikai matuoti_vidurki(
 ) {
     MatavimoLaikai suma{};
 
+    if (bandymu_kiekis <= 0)
+        return suma;
+
     for (int i = 0; i < bandymu_kiekis; i++) {
-        MatavimoLaikai laikai = funkcija(failas, vargs, kiet, 1);
+        MatavimoLaikai laikai = funkcija(
+            failas,
+            vargs,
+            kiet,
+            RUSIAVIMAS_PAGAL_REZULTATA
+        );
 
         suma.nuskaitymas += laikai.nuskaitymas;
         suma.grupavimas += laikai.grupavimas;
@@ -59,8 +67,11 @@ MatavimoLaikai matuoti_vidurki(
     return suma;
 }
 
-// Išveda vieno konteinerio vidutinius laikus
-void isvesti_laikus(const std::string& konteineris, const MatavimoLaikai& t) {
+// Išveda vieno konteinerio matavimo laikus
+void isvesti_laikus(
+    const std::string& konteineris,
+    const MatavimoLaikai& t
+) {
     double bendras = t.nuskaitymas + t.grupavimas +
                      t.rusiavimas + t.isvedimas;
 
@@ -69,7 +80,7 @@ void isvesti_laikus(const std::string& konteineris, const MatavimoLaikai& t) {
 
     cout << "Nuskaitymas: " << t.nuskaitymas << " s\n";
     cout << "Grupavimas:  " << t.grupavimas << " s\n";
-    cout << "Rusavimas:   " << t.rusiavimas << " s\n";
+    cout << "Rusiavimas: " << t.rusiavimas << " s\n";
     cout << "Isvedimas:   " << t.isvedimas << " s\n";
     cout << "Bendras:     " << bendras << " s\n";
 }
@@ -92,7 +103,8 @@ void testuoti_faila(
         list_funkcija = apdoroti_faila_list_2strategija;
     }
 
-    std::string strategijos_pavadinimas = "s" + std::to_string(strategija);
+    std::string strategijos_pavadinimas =
+        "s" + std::to_string(strategija);
 
     cout << "\n========================================\n";
     cout << "Failas: " << failas.pavadinimas << "\n";
@@ -104,8 +116,10 @@ void testuoti_faila(
     MatavimoLaikai vector_laikai = matuoti_vidurki(
         vector_funkcija,
         failas.pavadinimas,
-        "vargsiukai_" + strategijos_pavadinimas + "_vector_" + failas.dydis + ".txt",
-        "kietiakai_" + strategijos_pavadinimas + "_vector_" + failas.dydis + ".txt",
+        "vargsiukai_" + strategijos_pavadinimas +
+            "_vector_" + failas.dydis + ".txt",
+        "kietiakai_" + strategijos_pavadinimas +
+            "_vector_" + failas.dydis + ".txt",
         bandymu_kiekis
     );
 
@@ -113,8 +127,10 @@ void testuoti_faila(
     MatavimoLaikai list_laikai = matuoti_vidurki(
         list_funkcija,
         failas.pavadinimas,
-        "vargsiukai_" + strategijos_pavadinimas + "_list_" + failas.dydis + ".txt",
-        "kietiakai_" + strategijos_pavadinimas + "_list_" + failas.dydis + ".txt",
+        "vargsiukai_" + strategijos_pavadinimas +
+            "_list_" + failas.dydis + ".txt",
+        "kietiakai_" + strategijos_pavadinimas +
+            "_list_" + failas.dydis + ".txt",
         bandymu_kiekis
     );
 
@@ -140,14 +156,15 @@ void pasirinkti_testus() {
     cout << "2 - Antroji strategija\n";
     cout << "Jusu pasirinkimas: ";
 
-    if (!(cin >> strategija) || (strategija != 1 && strategija != 2)) {
+    if (!(cin >> strategija) ||
+        (strategija != 1 && strategija != 2)) {
         cout << "Neteisingas pasirinkimas.\n";
         return;
     }
 
     cout << "\nPasirinkite faila testavimui:\n";
 
-    for (int i = 0; i < 5; i++) {
+    for (int i = 0; i < static_cast<int>(failai.size()); i++) {
         cout << i + 1 << " - " << failai[i].pavadinimas << "\n";
     }
 
@@ -155,7 +172,8 @@ void pasirinkti_testus() {
     cout << "Jusu pasirinkimas: ";
 
     if (!(cin >> failo_pasirinkimas) ||
-        failo_pasirinkimas < 1 || failo_pasirinkimas > 6) {
+        failo_pasirinkimas < 1 ||
+        failo_pasirinkimas > 6) {
         cout << "Neteisingas pasirinkimas.\n";
         return;
     }
@@ -164,7 +182,11 @@ void pasirinkti_testus() {
 
     if (failo_pasirinkimas == 6) {
         for (const Failas& failas : failai) {
-            testuoti_faila(failas, strategija, bandymu_kiekis);
+            testuoti_faila(
+                failas,
+                strategija,
+                bandymu_kiekis
+            );
         }
     }
     else {
@@ -193,7 +215,8 @@ int main() {
     cout << "5 - Atlikti spartos testus su esamais failais\n";
     cout << "Jusu pasirinkimas: ";
 
-    if (!(cin >> pasirinkimas) || pasirinkimas < 1 || pasirinkimas > 5) {
+    if (!(cin >> pasirinkimas) ||
+        pasirinkimas < 1 || pasirinkimas > 5) {
         cout << "Neteisingas pasirinkimas.\n";
         return 1;
     }
@@ -201,19 +224,53 @@ int main() {
     std::random_device rd;
     std::mt19937 gen(rd());
 
+    // 4 pasirinkimas: failų generavimas ir apdorojimas
     if (pasirinkimas == 4) {
         generuoti_visus_failus(gen);
 
+        const std::array<Failas, 5> failai = {{
+            {"studentai_1k.txt", "1k"},
+            {"studentai_10k.txt", "10k"},
+            {"studentai_100k.txt", "100k"},
+            {"studentai_1m.txt", "1m"},
+            {"studentai_10m.txt", "10m"}
+        }};
+
         cout << "\nPradedamas failu apdorojimas...\n";
-        apdoroti_visus_failus(1);
+
+        for (const Failas& failas : failai) {
+            cout << "\nApdorojamas failas: "
+                 << failas.pavadinimas << "\n";
+
+            // 1 strategija – vector
+            MatavimoLaikai vector_laikai = apdoroti_faila(
+                failas.pavadinimas,
+                "vargsiukai_" + failas.dydis + ".txt",
+                "kietiakai_" + failas.dydis + ".txt"
+            );
+
+            // 1 strategija – list
+            MatavimoLaikai list_laikai = apdoroti_faila_list(
+                failas.pavadinimas,
+                "list_vargsiukai_" + failas.dydis + ".txt",
+                "list_kietiakai_" + failas.dydis + ".txt"
+            );
+
+            isvesti_laikus("VECTOR", vector_laikai);
+            isvesti_laikus("LIST", list_laikai);
+        }
+
+        cout << "\nFailu apdorojimas baigtas.\n";
         return 0;
     }
 
+    // 5 pasirinkimas: spartos testavimas
     if (pasirinkimas == 5) {
         pasirinkti_testus();
         return 0;
     }
 
+    // 3 pasirinkimas: duomenų nuskaitymas iš failo
     if (pasirinkimas == 3) {
         std::string failo_pavadinimas;
 
@@ -228,10 +285,11 @@ int main() {
         }
 
         std::string eilute;
-        std::getline(fd, eilute);
+        std::getline(fd, eilute); // Praleidžiama antraštė
 
         while (std::getline(fd, eilute)) {
-            if (eilute.empty()) continue;
+            if (eilute.empty())
+                continue;
 
             std::istringstream iss(eilute);
             studentas A;
@@ -241,8 +299,9 @@ int main() {
                 while (iss >> pazymys)
                     A.paz.push_back(pazymys);
 
-                if (A.paz.empty())
+                if (A.paz.empty()) {
                     A.egz = 0;
+                }
                 else {
                     A.egz = A.paz.back();
                     A.paz.pop_back();
@@ -256,6 +315,8 @@ int main() {
         fd.close();
         cout << "Duomenys sekmingai nuskaityti.\n";
     }
+
+    // 1 ir 2 pasirinkimai: rankinis arba atsitiktinis įvedimas
     else {
         std::uniform_int_distribution<int> dist(1, 10);
 
@@ -286,7 +347,7 @@ int main() {
                 cout << "Iveskite egzamino pazymi: ";
                 cin >> A.egz;
             }
-            else if (pasirinkimas == 2) {
+            else {
                 int kiek_nd;
 
                 cout << "Kiek namu darbu pazymiu generuoti? ";
@@ -313,10 +374,12 @@ int main() {
                 studentai_list.push_back(A);
 
                 cout << "Objekto adresas (vector): "
-                     << static_cast<const void*>(&studentai.back()) << "\n";
+                     << static_cast<const void*>(&studentai.back())
+                     << "\n";
 
                 cout << "Objekto adresas (list): "
-                     << static_cast<const void*>(&studentai_list.back()) << "\n";
+                     << static_cast<const void*>(&studentai_list.back())
+                     << "\n";
             }
 
             cout << "Ar norite ivesti dar viena studenta? t/n ";
@@ -327,6 +390,7 @@ int main() {
         }
     }
 
+    // Rezultatų išvedimas ekrane
     int plotis = 15 + 15 + 17 + 17 + 5;
 
     cout << "\nStudentu rezultatai:\n";
@@ -340,11 +404,14 @@ int main() {
 
     cout << std::string(plotis, '-') << "\n";
 
-    for (const studentas& A : studentai)
+    for (const studentas& A : studentai) {
         cout << "|" << left << setw(15) << A.pav
              << "|" << left << setw(15) << A.var
-             << "|" << left << setw(17) << fixed << setprecision(2) << A.rez
-             << "|" << left << setw(17) << A.rez_med << "|\n";
+             << "|" << left << setw(17) << fixed
+             << setprecision(2) << A.rez
+             << "|" << left << setw(17) << A.rez_med
+             << "|\n";
+    }
 
     cout << std::string(plotis, '-') << "\n";
 
