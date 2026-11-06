@@ -1,3 +1,27 @@
+
+## Programos įdiegimas ir kompiliavimas
+
+Programai sukompiliuoti reikalingi:
+- C++17 standartą palaikantis C++ kompiliatorius (GCC, Clang arba MSVC).
+- CMake (ne žemesnė nei 3.15 versija).
+
+1. Atsisiųskite projekto failus iš GitHub repozitorijos.
+2. Atidarykite terminalą projekto aplanke.
+3. Sukurkite kompiliavimo aplanką ir paruoškite projektą:
+
+```bash
+cmake -S . -B build
+```
+
+4. Sukompiliuokite programą:
+
+```bash
+cmake --build build
+```
+
+5. Paleiskite sukurtą vykdomąjį failą.
+
+
 Programos spartos testavimas, taikant skirtingas grupavimo strategijas
 
 Testavimo sistemos parametrai (prieš atliekant visus testus):
