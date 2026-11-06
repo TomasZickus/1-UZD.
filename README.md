@@ -1,3 +1,23 @@
+## Programos versijų release'ų aprašymas:
+v0.1 – Duomenų nuskaitymas iš failo
+- Programa papildyta galimybe nuskaityti studentų duomenis iš tekstinio failo.
+- Studentai išvedami surūšiuoti pagal vardą arba pavardę, tvarkingai išlygiuojant rezultatų stulpelius.
+
+v0.2 – Studentų skirstymas ir programos spartos analizė
+- Sukuriami skirtingo dydžio studentų duomenų failai (nuo 1 000 iki 10 000 000 įrašų).
+- Studentai suskirstomi į dvi kategorijas pagal galutinį balą: mažiau nei 5 ir ne mažiau nei 5.
+- Atliekamas programos spartos tyrimas: matuojamas failų kūrimo, duomenų nuskaitymo, studentų skirstymo ir rezultatų įrašymo laikas.
+- Atliekamas kodo reorganizavimas, naudojant atskirus .h ir .cpp failus.
+
+v0.3 – vector ir list konteinerių spartos palyginimas
+- Palyginamas programos veikimo greitis naudojant std::vector ir std::list konteinerius.
+- Atliekami papildomi studentų skirstymo ir duomenų įrašymo į failus spartos matavimai.
+- Tyrimo rezultatai aprašomi README.md faile.
+
+v1.0 – Studentų skirstymo optimizavimas ir galutinė programos versija
+- Ištiriamos ir palyginamos trys studentų skirstymo į kategorijas strategijos, naudojant vector ir list.
+- Pritaikomi efektyvesni standartinės bibliotekos algoritmai, siekiant optimizuoti skirstymą naudojant vector.
+- Parengiama galutinė tvarkinga GitHub repozitorija, išsamus README.md, naudojimosi ir diegimo instrukcijos bei CMakeLists.txt arba Makefile.
 
 ## Programos įdiegimas ir kompiliavimas
 
@@ -23,7 +43,7 @@ cmake --build build
 5. Paleiskite sukurtą vykdomąjį failą (Windows aplinkoje – `build/programa.exe`).
 
 
-## Programos spartos testavimas, taikant skirtingas grupavimo strategijas
+## Programos v1.0 versijos spartos testavimas, taikant skirtingas grupavimo strategijas
 
 ### Testavimo sistemos parametrai (prieš atliekant visus testus):
 
