@@ -43,3 +43,29 @@ Abiems strategijoms atlikta po analogišką testą. Jo metu visi bandymai atlikt
 | studentai_10m.txt | 10 000 000 | list | - | - | - | - | - |
 
 Pastaba: 2 strategijos bandymų su didžiausiais failais įgyvendinimo iki galo nebesulaukiau, kadangi tai truko neadekvačiai ilgą laiką. Pagal pilnai įvykdytus bandymus su mažesniais failais akivaizdu, kad to stabdis šioje strategijoje - būtent studentų grupavimo etapas naudojant vektorių.
+
+Išvada iš 1 ir 2 strategijų palyginimo: 1 strategijos veikimas žymiai spartesnis vector konteinerio atveju. Nors list atveju sparta skiriasi mažai, tačiau didžiulis vector skirtumas nulemia tai, kad bendras 1 strategijos veikimas yra žymiai spartesnis.
+
+Kadangi 1 strategija veikia sparčiau, tai pagal instrukcijos reikalavimus 3 strategijos realizacijai pasirinkau būtent ją. Taigi, 3 strategija yra optimizuota 1 strategija. Toliau, po atliktų kodo pakeitimų, atlikau analogišką pakartotinį 1 strategijos spartos matavimą ir jo rezultatus palyginau su išmatuota naujosios 3 strategijos sparta. Laikantis instrukcijos reikalavimų, į rezultatus įtraukti tik vector konteinerio matavimai.
+
+1 ir 3 strategijų testavimo rezultatai:
+
+1 strategija:
+
+| Failas | Įrašų skaičius | Konteineris | Nuskaitymas (s) | Grupavimas (s) | Rūšiavimas (s) | Išvedimas (s) | Bendras laikas (s) |
+|---|---:|---|---:|---:|---:|---:|---:|
+| studentai_1k.txt | 1 000 | vector | 0.00524 | 0.00175 | 0.00241 | 0.02353 | 0.03294 |
+| studentai_10k.txt | 10 000 | vector | 0.04912 | 0.00954 | 0.03508 | 0.03830 | 0.13204 |
+| studentai_100k.txt | 100 000 | vector | 0.27510 | 0.05078 | 0.27304 | 0.21201 | 0.81093 |
+| studentai_1m.txt | 1 000 000 | vector | 2.35079 | 0.52115 | 3.70065 | 1.98832 | 8.56090 |
+| studentai_10m.txt | 10 000 000 | vector | 24.37385 | 4.47011 | 43.08957 | 18.67776 | 90.61128 |
+
+3 strategija:
+
+| Failas | Įrašų skaičius | Konteineris | Nuskaitymas (s) | Grupavimas (s) | Rūšiavimas (s) | Išvedimas (s) | Bendras laikas (s) |
+|---|---:|---|---:|---:|---:|---:|---:|
+| studentai_1k.txt | 1 000 | vector | 0.00718 | 0.00121 | 0.00305 | 0.01847 | 0.02992 |
+| studentai_10k.txt | 10 000 | vector | 0.06129 | 0.00940 | 0.02999 | 0.03895 | 0.13962 |
+| studentai_100k.txt | 100 000 | vector | 0.28448 | 0.06853 | 0.29612 | 0.23422 | 0.88334 |
+| studentai_1m.txt | 1 000 000 | vector | 2.28487 | 0.56047 | 3.60371 | 1.94276 | 8.39181 |
+| studentai_10m.txt | 10 000 000 | vector | 30.11702 | 5.55241 | 53.27708 | 23.31548 | 112.26198 |
