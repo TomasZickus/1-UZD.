@@ -4,6 +4,7 @@
 Programai sukompiliuoti reikalingi:
 - C++17 standartą palaikantis C++ kompiliatorius (GCC, Clang arba MSVC).
 - CMake (ne žemesnė nei 3.15 versija).
+- Atitinkamai pasirinktai kompiliavimo aplinkai reikalingas build įrankis (pvz., MinGW Make).
 
 1. Atsisiųskite projekto failus iš GitHub repozitorijos.
 2. Atidarykite terminalą projekto aplanke.
@@ -19,7 +20,7 @@ cmake -S . -B build
 cmake --build build
 ```
 
-5. Paleiskite sukurtą vykdomąjį failą.
+5. Paleiskite sukurtą vykdomąjį failą (Windows aplinkoje – `build/programa.exe`).
 
 
 ## Programos spartos testavimas, taikant skirtingas grupavimo strategijas
